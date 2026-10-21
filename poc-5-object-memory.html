@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POC 方向 5 · 全屋物品记忆 Object Memory · 工程技术方案 v2</title>
+<style>
+  :root{--bg:#070B14;--card:#0F1526;--card2:#121A2E;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+  --txt:#F2F5FA;--sub:#98A4BC;--faint:#5D6B87;--blue:#5B8CFF;--cyan:#3EE0C4;--orange:#FF9F43;--green:#4ADE80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:"PingFang SC","HarmonyOS Sans SC","MiSans","Microsoft YaHei",-apple-system,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px}
+  header{padding:58px 0 34px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .glow{position:absolute;width:500px;height:500px;border-radius:50%;filter:blur(100px);background:rgba(20,40,160,.28);top:-240px;left:-140px;pointer-events:none}
+  .eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;letter-spacing:.2em;color:var(--cyan);border:1px solid rgba(62,224,196,.35);border-radius:999px;padding:5px 14px;margin-bottom:20px;background:rgba(62,224,196,.06)}
+  h1{font-size:40px;font-weight:800}
+  h1 .en{display:block;font-size:15px;font-weight:600;letter-spacing:.3em;color:var(--faint);margin-top:8px;text-transform:uppercase}
+  .lead{margin-top:16px;font-size:15.5px;color:var(--sub);max-width:790px}
+  .lead b{color:var(--txt)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .chip{font-size:12px;color:#C9D4EA;background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:5px 14px}
+  .chip b{color:var(--blue)}
+  section{padding:40px 0 4px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+  .sec-no{font-size:13px;color:var(--blue);font-weight:700;letter-spacing:.2em}
+  .sec-head h2{font-size:23px;font-weight:800}
+  .sec-head .sub{font-size:11.5px;color:var(--faint)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .story{font-size:14px;color:var(--sub)}
+  .story b{color:var(--txt)}
+  .story .hl{color:var(--cyan);font-weight:600}
+  .alt{margin-top:12px;font-size:12.5px;color:var(--faint);border-left:2px solid var(--line2);padding-left:14px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;color:var(--faint);font-weight:600;letter-spacing:.06em;padding:9px 10px;border-bottom:1px solid var(--line2);font-size:11.5px}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--sub);vertical-align:top}
+  td b{color:var(--txt)}
+  td .ok{color:var(--green);font-size:10.5px;border:1px solid rgba(74,222,128,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .wip{color:var(--orange);font-size:10.5px;border:1px solid rgba(255,159,67,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .no{color:#FF6B6B;font-size:10.5px;border:1px solid rgba(255,107,107,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  .arch{display:grid;grid-template-columns:1fr 36px 1.25fr 36px 1fr;align-items:stretch;gap:0}
+  .acol h4{font-size:11.5px;letter-spacing:.16em;color:var(--faint);margin-bottom:10px}
+  .abox{background:var(--card2);border:1px solid var(--line2);border-radius:11px;padding:9px 12px;font-size:12.5px;margin-bottom:8px}
+  .abox small{display:block;font-size:10.5px;color:var(--faint);line-height:1.5}
+  .acore{background:linear-gradient(180deg,rgba(91,140,255,.1),rgba(62,224,196,.05));border:1px solid rgba(91,140,255,.4);border-radius:11px;padding:9px 12px;margin-bottom:8px}
+  .acore b{font-size:12.5px}.acore small{display:block;font-size:10.5px;color:var(--sub);line-height:1.5}
+  .alink{display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:12px}
+  .steps{counter-reset:s;display:flex;flex-direction:column;gap:11px}
+  .step{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:13px;align-items:start}
+  .step::before{content:counter(s,decimal-leading-zero);width:32px;height:32px;border-radius:9px;background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.4);color:var(--blue);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .step .st{font-size:14px;font-weight:700;margin-bottom:2px}
+  .step .st,.step .sd{grid-column:2}
+  .step .sd{font-size:12.5px;color:var(--sub)}
+  .step .sd code,p code,td code,li code{color:var(--cyan);font-size:11.5px;background:rgba(62,224,196,.08);padding:1px 5px;border-radius:5px;font-family:Consolas,monospace}
+  .notes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .note{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .note .nt{font-size:12.5px;font-weight:700;color:var(--cyan);margin-bottom:5px}
+  .note p{font-size:12px;color:var(--sub)}
+  .tl{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+  .tw{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px}
+  .tw .w{font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--blue)}
+  .tw h3{font-size:14px;margin:5px 0 7px}
+  .tw ul{list-style:none}
+  .tw li{font-size:11.5px;color:var(--sub);padding:2px 0 2px 13px;position:relative}
+  .tw li::before{content:"·";position:absolute;left:2px;color:var(--blue)}
+  .tw .exit{margin-top:8px;font-size:11px;color:var(--green);border-top:1px solid var(--line);padding-top:7px}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .mc{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px}
+  .mc .mi{font-size:10.5px;letter-spacing:.14em;color:var(--faint)}
+  .mc .val{font-size:23px;font-weight:800;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:4px 0}
+  .mc p{font-size:11.5px;color:var(--sub)}
+  .risks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .rc{background:var(--card);border:1px solid rgba(255,159,67,.22);border-radius:15px;padding:18px}
+  .rc h3{font-size:13.5px;margin-bottom:5px}
+  .rc p{font-size:11.5px;color:var(--sub)}
+  .rc .fix{margin-top:8px;font-size:11.5px;color:var(--green)}
+  .toc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .toc a{display:flex;gap:9px;font-size:12px;color:var(--sub);text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+  .toc a b{color:var(--blue);font-weight:700}
+  .code{background:#080D1A;border:1px solid var(--line2);border-radius:11px;padding:13px 15px;font-family:Consolas,"SF Mono",monospace;font-size:11.5px;line-height:1.72;color:#B9C6DE;overflow-x:auto;white-space:pre;margin-top:12px}
+  .code .c{color:var(--faint)}
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;font-size:12.5px}
+  .kv div{padding:7px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px}
+  .kv span{color:var(--faint)}.kv b{color:var(--txt);text-align:right}
+  .callout{border-left:2px solid var(--orange);background:rgba(255,159,67,.06);border-radius:0 11px 11px 0;padding:13px 16px;font-size:12.5px;color:var(--sub);margin-top:12px}
+  .callout b{color:var(--orange)}
+  .callout.good{border-color:var(--green);background:rgba(74,222,128,.06)}
+  .callout.good b{color:var(--green)}
+  .callout.info{border-color:var(--blue);background:rgba(91,140,255,.06)}
+  .callout.info b{color:var(--blue)}
+  .matrix td:first-child{color:var(--txt);font-weight:600;font-size:11.5px}
+  .adr{display:flex;flex-direction:column;gap:9px}
+  .adr .a{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+  .adr .a .h{font-size:13px;font-weight:700;margin-bottom:3px}
+  .adr .a .h em{font-style:normal;font-size:10px;color:var(--blue);border:1px solid rgba(91,140,255,.4);border-radius:5px;padding:1px 6px;margin-right:7px;letter-spacing:.08em}
+  .adr .a p{font-size:12px;color:var(--sub)}
+  ul.tight{list-style:none;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--sub)}
+  ul.tight li{padding-left:13px;position:relative}
+  ul.tight li::before{content:"—";position:absolute;left:0;color:var(--blue)}
+  h3.bt{font-size:14px;margin:22px 0 10px;color:var(--txt)}
+  h3.bt:first-child{margin-top:0}
+  .src{font-size:10.5px;color:var(--faint);margin-top:9px;line-height:1.7}
+  footer{margin-top:52px;padding:28px 0 40px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);text-align:center;line-height:1.9}
+  @media(max-width:900px){.arch{grid-template-columns:1fr}.alink{transform:rotate(90deg);padding:8px 0}.tl,.metrics,.risks,.notes,.toc,.kv{grid-template-columns:1fr}h1{font-size:29px}}
+</style>
+</head>
+<body>
+<header><div class="glow"></div><div class="wrap">
+  <div class="eyebrow">POC 方向 05 · 工程技术方案 · v2 细化版</div>
+  <h1>全屋物品记忆<span class="en">Object Memory</span></h1>
+  <p class="lead">「护照放哪了？」——「6 月 12 日晚上 21:40 在书房桌面见过，附当时的照片；已经 38 天没更新，置信度中等。要不要我带你去看看？」<b>只记你亲手登记过的物品，只存缩略图和房间，不存全景、不上云。</b><br>本文档细化到<b>三类数据源的可达性、拍摄规范、检索与衰减模型、AR 引导、成本与隐私架构</b>——并撤回 v1 一个不成立的前提：<b>扫地机的地图数据拿不到</b>。</p>
+  <div class="chips">
+    <div class="chip">载体 <b>S26 + Jet Bot（可选）</b></div>
+    <div class="chip">识别 <b>3.5 Flash 多模态</b></div>
+    <div class="chip">存储 <b>端侧 SQLite + 加密</b></div>
+    <div class="chip">周期 <b>4 周</b> · 2 人月</div>
+    <div class="chip">版本 <b>v2 · 2026-10-21</b></div>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="sec-head"><span class="sec-no">00</span><h2>目录</h2></div>
+  <div class="toc">
+    <a href="#s01"><b>01</b>概念与主场景</a>
+    <a href="#s02"><b>02</b>事实基线：哪些能拿到</a>
+    <a href="#s03"><b>03</b>系统架构（三源）</a>
+    <a href="#s04"><b>04</b>登记与识别管线</a>
+    <a href="#s05"><b>05</b>检索与衰减模型</a>
+    <a href="#s06"><b>06</b>「带我去看看」AR 引导</a>
+    <a href="#s07"><b>07</b>数据契约</a>
+    <a href="#s08"><b>08</b>延迟预算与成本</a>
+    <a href="#s09"><b>09</b>失败处理矩阵</a>
+    <a href="#s10"><b>10</b>隐私架构（本方案的核心）</a>
+    <a href="#s11"><b>11</b>计划·指标·风险</a>
+    <a href="#s12"><b>12</b>架构决策记录（ADR）</a>
+  </div>
+</section>
+
+<section id="s01">
+  <div class="sec-head"><span class="sec-no">01</span><h2>概念与主场景</h2><span class="sub">它记的是「你告诉过我的东西」，不是「它看到的一切」</span></div>
+  <div class="card">
+    <p class="story">周五晚上要出门，护照不见了。用户对手机说「我的护照在哪」——3 秒后：<span class="hl">「6 月 12 日 21:40 在书房桌面见过（附照片），之后 38 天没有新记录，置信度中等。最近一次你把它放进书房右手边抽屉。」</span>他说「带我去看看」，手机进 AR 模式：抬头显示「书房 · 前进 4 米」，走到桌前再显示「上次在这里 · 看右手边抽屉」。找到后他举起手机拍一张，说「放这了」——时间线立刻更新，系统顺手记下「这是第 3 次在书房找到护照，建议设个固定位置」。<b>全程没有任何全景照片离开这台手机。</b></p>
+    <p class="alt">备选场景：出门前物品自检（按行程核查证件/充电器/药盒最近是否在家）；常丢物品周报（钥匙位置变化主动提醒）；家庭共享（配偶也能查到「孩子的疫苗本在哪」，共享范围按物品设）。</p>
+    <div class="callout"><b>v1 的不成立前提：</b>原文写「Jet Bot 建图数据已开放、可控制机器人前往坐标」。核对后事实是：公开的 SmartThings 接口对扫地机只暴露<b>运行状态与开关</b>（<code>samsungce.robotCleanerOperatingState</code> + <code>switch</code>），<b>地图与坐标不在公开 API 内</b>；地图只在 SmartThings App 里可见。机器人的定点清扫也没有公开的坐标级接口。<br><b>所以 POC 主线必须换成一个不依赖未开放接口的形态</b>——这也是下面「三源设计」的由来。</div>
+  </div>
+</section>
+
+<section id="s02">
+  <div class="sec-head"><span class="sec-no">02</span><h2>事实基线：哪些能拿到</h2><span class="sub">先列接口可达性，再谈能力，顺序不能反</span></div>
+  <div class="card">
+    <h3 class="bt">2.1 三类数据源的真实可达性</h3>
+    <table>
+      <tr><th>数据源</th><th>能拿到什么</th><th>可达性</th><th>本 POC 定位</th></tr>
+      <tr><td><b>A. 手机拍记</b></td><td>用户主动拍摄的照片 + 一句语音 + 房间（手选）</td><td><span class="ok">完全可控</span> 相机 + 端侧模型，无需任何厂商授权</td><td><b>主线</b>，覆盖 100% 场景</td></tr>
+      <tr><td><b>B. Jet Bot 巡航画面</b></td><td>清扫过程中的前视画面、物体识别结果</td><td><span class="no">无公开接口</span> 需合作伙伴通道</td><td><b>W3 加分项</b>，拿不到不影响主线</td></tr>
+      <tr><td><b>C. Jet Bot 状态事件</b></td><td>开始/暂停/回充/故障；可作为「今天家里被清扫过」</td><td><span class="ok">已开放</span> SmartThings capability</td><td><b>辅助新鲜度信号</b></td></tr>
+      <tr><td><b>D. 扫地机地图/坐标</b></td><td>房间划分、坐标、可通行区域</td><td><span class="no">不在公开 API</span> 仅 App 内可见</td><td><b>不依赖</b>，改用「房间手选 + 照片」</td></tr>
+    </table>
+    <p class="src">补充事实：SmartThings 官方限流规定设备状态读取 12 次/分钟/设备、单请求最多 10 条命令；扫地机相关 capability 只到「运行状态」层级。<b>「控制机器人走到 (x,y)」这件事，在公开接口层面不存在。</b></p>
+
+    <h3 class="bt">2.2 识别能力基线</h3>
+    <div class="kv">
+      <div><span>识别模型</span><b>gemini-3.5-flash（多模态入）</b></div>
+      <div><span>输入模态</span><b>文本 / 图像 / 音频 / 视频 / PDF</b></div>
+      <div><span>结构化输出</span><b>JSON Schema 强约束</b></div>
+      <div><span>图像计价</span><b>$1.50 / 百万 token（约 1,290 token/图）</b></div>
+      <div><span>输出计价</span><b>$9.00 / 百万 token</b></div>
+      <div><span>上下文</span><b>1,048,576 token（可放全部时间线）</b></div>
+    </div>
+    <p class="src">注意：这里没有独立的「Vision API」产品，视觉能力就是 3.5 Flash 的多模态输入。v1 里写的「Gemini Vision API」是错的叫法。</p>
+
+    <h3 class="bt">2.3 机器人自身能力（用于判断「值不值得等合作」）</h3>
+    <table>
+      <tr><th>能力</th><th>事实</th><th>对物品记忆的价值</th></tr>
+      <tr><td>AI 物体识别</td><td>DNN + 前视摄像头，识别线缆、玩具、宠物、小物件等；三星明确声明<b>识别可能不完整或出错</b>，数据集还会随版本更新</td><td>通用避障可用，<b>精细再识别（同一本护照）不可靠</b></td></tr>
+      <tr><td>空间识别</td><td>可对地图区域分类（客厅/厨房等）</td><td>若能拿到，可省掉手选房间；目前只在 App 内</td></tr>
+      <tr><td>传感器</td><td>LiDAR 建图 + 前视相机；新款带主动立体 3D 传感器，可识别液体污渍</td><td>建图精度够导航，<b>不等于物品定位精度</b></td></tr>
+      <tr><td>监控串流</td><td>部分机型支持通过 SmartThings App 看实时画面</td><td>是「人看」的功能，不是可取帧的 API</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s03">
+  <div class="sec-head"><span class="sec-no">03</span><h2>系统架构（三源）</h2><span class="sub">主线不依赖任何未开放接口，加分项才依赖</span></div>
+  <div class="arch">
+    <div class="acol"><h4>采集源</h4>
+      <div class="abox">S26 拍记（主线）<small>照片 + 语音 + 房间手选</small></div>
+      <div class="abox">Jet Bot 状态事件<small>清扫完成 → 新鲜度信号</small></div>
+      <div class="abox">Jet Bot 巡航帧（可选）<small>伙伴通道，未开放则跳过</small></div>
+    </div>
+    <div class="alink">→</div>
+    <div class="acol"><h4>端侧 · S26</h4>
+      <div class="acore"><b>ROI 裁剪 + 隐私模糊</b><small>人脸/屏幕/证件号码 本地打码</small></div>
+      <div class="acore"><b>识别与描述</b><small>3.5 Flash：物品名/类别/可见特征</small></div>
+      <div class="acore"><b>时间线 SQLite</b><small>sighting 表 + 缩略图（加密）</small></div>
+      <div class="acore"><b>检索 + 衰减</b><small>房间过滤 + embedding 相似 + 半衰期</small></div>
+    </div>
+    <div class="alink">→</div>
+    <div class="acol"><h4>交互面</h4>
+      <div class="abox">语音问答<small>「护照在哪」→ 带证据回答</small></div>
+      <div class="abox">AR 引导<small>房间导航 + 上次照片对照</small></div>
+      <div class="abox">Now Brief 卡片<small>常丢物品位置变化</small></div>
+      <div class="abox">共享（可选）<small>按物品设可见范围</small></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3 class="bt">3.1 为什么「拍记」反而是更好的主线</h3>
+    <ul class="tight">
+      <li><b>精度更高：</b>用户拍摄时是「特意对准这个物品」，构图、距离、光照都优于机器人路过时的一瞥。</li>
+      <li><b>零授权：</b>不依赖任何厂商接口，今天就能在真机上跑通。</li>
+      <li><b>隐私更干净：</b>只有用户主动拍的那一张、只有物品附近的裁剪区域，不存在「全屋被扫过一遍」的观感。</li>
+      <li><b>可解释：</b>回答永远带「这是你 6 月 12 日拍的」——证据是用户自己产生的，信任成本极低。</li>
+    </ul>
+    <div class="callout info"><b>代价要认：</b>拍记依赖用户动作，覆盖率不如自动巡检。所以产品定位是「<b>重要的那 30 件东西</b>」（证件、钥匙、遥控器、药盒、充电器），而不是「记住家里所有物品」。这个定位反而让演示更聚焦。</div>
+  </div>
+</section>
+
+<section id="s04">
+  <div class="sec-head"><span class="sec-no">04</span><h2>登记与识别管线</h2><span class="sub">拍一张的成本要低到「顺手」，否则没人用</span></div>
+  <div class="card">
+    <div class="steps">
+      <div class="step"><div class="st">一键拍记</div><div class="sd">锁屏卡片 / 负一屏入口，点一下进相机；拍完自动追问一句「这是什么？放哪了？」——语音回答即可，<b>不要求打字</b>。<code>从点击到保存 ≤15 秒</code></div></div>
+      <div class="step"><div class="st">物品主体检测与裁剪</div><div class="sd">端侧轻量检测框出主体，裁成 <code>1024×1024</code> ROI 再上传；<b>不上传整图</b>。这样既省 token（约 1,290/图），也避免把桌面杂物、家人照片带上云。</div></div>
+      <div class="step"><div class="st">隐私模糊（上传前）</div><div class="sd">端侧检测人脸、屏幕、证件号码区域并高斯模糊；模糊失败则拒绝上传并提示重拍。<b>顺序很关键：先模糊、后上传。</b></div></div>
+      <div class="step"><div class="st">识别与描述生成</div><div class="sd">3.5 Flash 输出结构化结果：物品名、类别、颜色/材质/显著特征（用于后续再识别）、是否与用户口述一致。不一致时以用户口述为准，并记一条 <code>conflict</code>。</div></div>
+      <div class="step"><div class="st">房间归属</div><div class="sd">POC 阶段<b>手选房间</b>（一个大按钮，默认上次房间）；不给「自动判定房间」的假承诺。后续可用蓝牙/Wi-Fi 指纹做建议，但需用户确认。</div></div>
+      <div class="step"><div class="st">写入时间线</div><div class="sd">写一条 sighting：物品 ID、房间、时间、缩略图路径、识别置信度、来源（manual / robot）。同一物品的多次 sighting 按时间倒序索引。</div></div>
+    </div>
+    <h3 class="bt">4.1 再识别怎么做（同一件物品的跨时空匹配）</h3>
+    <table>
+      <tr><th>层级</th><th>方法</th><th>用途</th></tr>
+      <tr><td>强匹配</td><td>用户口述名称 + 类别 + 显著特征文本（如「深蓝封皮、右上角有贴纸」）</td><td>多数场景足够，且完全可解释</td></tr>
+      <tr><td>弱匹配</td><td>图像 embedding 余弦相似（端侧模型）</td><td>用户说不清特征时的兜底</td></tr>
+      <tr><td>不匹配</td><td>相似度低于阈值 → 不说「这是同一个」，只说「同一类物品在附近出现过」</td><td>避免把「另一本护照」当成「你的护照」</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s05">
+  <div class="sec-head"><span class="sec-no">05</span><h2>检索与衰减模型</h2><span class="sub">寻物场景里，错答案比没答案更糟</span></div>
+  <div class="card">
+    <div class="code"><span class="c">// 置信度 = 基础识别置信 × 时间衰减；半衰期按物品"会被移动的频率"分档</span>
+halfLife = { 证件: 45d, 钥匙: 21d, 遥控器: 12d, 药盒: 14d, 充电器: 10d, 其他: 20d }
+conf(t)  = baseConf * 0.5 ^ (daysSinceSeen / halfLife[class])
+<span class="c">// 新鲜度加成：若当天 Jet Bot 清扫过该房间且未检测到该物品，衰减加速 1.5 倍</span>
+<span class="c">// 展示分档（不显示数字，显示人话）</span>
+conf ≥ 0.70 → 「比较确定」   ｜ 0.40–0.70 → 「可能在这」
+conf &lt; 0.40 → 「太久没更新，只能作为线索」</div>
+    <table style="margin-top:12px">
+      <tr><th>查询类型</th><th>处理</th><th>回答形态</th></tr>
+      <tr><td>「护照在哪」</td><td>按物品名精确 → 时间倒序 → 取最近</td><td>时间 + 房间 + 缩略图 + 置信档 + 建议下一步</td></tr>
+      <tr><td>「我钥匙最近老丢哪」</td><td>按物品聚合房间频次</td><td>「近 30 天 7 次里 5 次在玄关，建议放个托盘」</td></tr>
+      <tr><td>「明天出差要带的都在吗」</td><td>按行程模板列清单 → 逐项查最近 sighting</td><td>清单式：✓ 身份证（昨天）｜? 充电器（12 天前）</td></tr>
+      <tr><td>查不到</td><td>不编造</td><td>「没有记录。要不要现在拍一张记下来？」</td></tr>
+    </table>
+    <div class="callout"><b>一条硬规则：</b>超过 2 个半衰期没有新记录时，回答里<b>必须出现「很久没更新」</b>，并且不再给「就在那」的语气。产品宁可显得笨，也不能让用户在错误的地方翻 20 分钟。</div>
+  </div>
+</section>
+
+<section id="s06">
+  <div class="sec-head"><span class="sec-no">06</span><h2>「带我去看看」AR 引导</h2><span class="sub">不能指挥机器人，就指挥人——而且用照片对照</span></div>
+  <div class="card">
+    <table>
+      <tr><th>步骤</th><th>实现</th><th>为什么这样做</th></tr>
+      <tr><td>房间导航</td><td>手机 AR 模式下显示「书房 · 前进约 4 米」；室内精确定位不做承诺</td><td>不依赖 UWB 基站与室内地图，只给方位与距离感</td></tr>
+      <tr><td>到达提示</td><td>进入目标房间后切换为「上次的位置：桌面右侧」</td><td>房间级准确率远高于坐标级</td></tr>
+      <tr><td>照片对照</td><td>半透明叠加上次拍摄的缩略图，供用户视觉比对</td><td>人对「当时长什么样」的识别力极强，比任何坐标都可靠</td></tr>
+      <tr><td>寻找成功</td><td>一键「放这了」重拍 → 更新 sighting</td><td>把「找到」变成一次新的、更高质量的数据点</td></tr>
+      <tr><td>寻找失败</td><td>提示扩大范围（同房间 → 相邻房间），并记录一次 miss</td><td>miss 会影响该物品的衰减速度，让下次回答更保守</td></tr>
+    </table>
+    <div class="callout good"><b>这个形态反而更适合演示：</b>评审现场拿手机走两步、叠着照片在桌上找到护照——比「让机器人爬过去」更快、更可控，也不依赖未开放的机器人接口。</div>
+  </div>
+</section>
+
+<section id="s07">
+  <div class="sec-head"><span class="sec-no">07</span><h2>数据契约</h2></div>
+  <div class="card">
+    <div class="code"><span class="c">// 1) 登记物品（用户显式创建，永不自动扩充）</span>
+Item {
+  itemId; name; class: "证件"|"钥匙"|"遥控器"|"药盒"|"充电器"|"其他";
+  features: string[];        <span class="c">// "深蓝封皮" "右上角贴纸"</span>
+  embeddingRef?; createdAt; sharedWith: userId[];
+}
+
+<span class="c">// 2) 目击记录（唯一的定位事实）</span>
+Sighting {
+  sightingId; itemId; roomId; seenAt;
+  source: "manual"|"robot";
+  thumbPath;                 <span class="c">// 端侧加密文件路径，不上云</span>
+  baseConf;                  <span class="c">// 识别置信</span>
+  note?: string;             <span class="c">// 用户原话</span>
+}
+
+<span class="c">// 3) 查询结果（回答即证据）</span>
+Answer {
+  itemId; bestSighting; confBand: "high"|"mid"|"low";
+  daysSinceSeen; halfLifeDays; missCount;
+  evidence: { thumbPath, roomId, seenAt };
+  suggestion: "去书房右手边抽屉看看" | "拍一张记下来";
+}
+
+<span class="c">// 4) 新鲜度信号（来自机器人状态事件，仅作辅助）</span>
+FreshnessSignal { roomId?; robotCleanedAt; durationMin }</div>
+    <p class="src">注意 <code>Item</code> 只能由用户创建——这是隐私架构的地基，也是 ADR-01 的依据。</p>
+  </div>
+</section>
+
+<section id="s08">
+  <div class="sec-head"><span class="sec-no">08</span><h2>延迟预算与成本</h2></div>
+  <div class="card">
+    <table>
+      <tr><th>环节</th><th>P50</th><th>P90</th><th>说明</th></tr>
+      <tr><td>拍记：拍摄 → 保存完成</td><td>9s</td><td>15s</td><td>含语音追问与手选房间</td></tr>
+      <tr><td>识别（单张 ROI）</td><td>1.1s</td><td>2.2s</td><td>3.5 Flash 结构化输出</td></tr>
+      <tr><td>查询：语音 → 回答</td><td>1.4s</td><td>2.6s</td><td>端侧检索 + 文案生成</td></tr>
+      <tr><td>AR 引导启动</td><td>0.6s</td><td>1.2s</td><td>本地，无需网络</td></tr>
+    </table>
+    <h3 class="bt">8.1 成本（每户每月）</h3>
+    <table>
+      <tr><th>项</th><th>用量</th><th>成本</th></tr>
+      <tr><td>识别</td><td>20 次拍记/月 × (1,290 图 + 150 出) token</td><td>≈ $0.07</td></tr>
+      <tr><td>查询文案</td><td>60 次/月 × 800 token</td><td>≈ $0.05</td></tr>
+      <tr><td>存储</td><td>约 200 张缩略图/年，端侧</td><td>0</td></tr>
+      <tr><td><b>合计</b></td><td></td><td><b>≈ $0.12（¥0.9）/户/月</b></td></tr>
+    </table>
+    <p class="src">这是六个方向里云端成本最低的一个——因为绝大部分计算（裁剪、模糊、检索、衰减）都在端侧，模型只做「看一眼并描述」。</p>
+  </div>
+</section>
+
+<section id="s09">
+  <div class="sec-head"><span class="sec-no">09</span><h2>失败处理矩阵</h2></div>
+  <div class="card" style="padding:10px 18px">
+    <table class="matrix">
+      <tr><th>失败场景</th><th>检测信号</th><th>降级动作</th><th>用户看到</th></tr>
+      <tr><td>物品长期未更新</td><td>超过 2 个半衰期</td><td>降为「线索」，语气转保守，建议重拍</td><td>「太久没更新了，只能当线索」</td></tr>
+      <tr><td>用户口述与识别冲突</td><td>类别不一致</td><td>以用户为准，记 <code>conflict</code>，不提「我认错了」</td><td>按用户说法保存</td></tr>
+      <tr><td>相似物品混淆</td><td>embedding 相似但特征不符</td><td>不判同一件，只说「同类型在附近出现过」</td><td>「可能是另一本，你确认下」</td></tr>
+      <tr><td>隐私模糊失败</td><td>端侧检测到人脸/证件号未遮住</td><td>拒绝上传，要求重拍或手动涂抹</td><td>「这张有隐私信息，重拍一张或涂掉」</td></tr>
+      <tr><td>房间选错</td><td>用户事后纠正</td><td>允许编辑房间；历史 sighting 一并修正</td><td>「已把这条改成书房」</td></tr>
+      <tr><td>AR 定位漂移</td><td>视觉特征不足/光线差</td><td>退回静态提示（房间 + 照片）</td><td>「AR 不太准，先看这张照片」</td></tr>
+      <tr><td>机器人事件缺失</td><td>无 FreshnessSignal</td><td>衰减按默认速率，不做加速</td><td>无感</td></tr>
+      <tr><td>共享冲突</td><td>物品未授权给该用户</td><td>拒绝并提示申请</td><td>「这件物品未共享给你」</td></tr>
+      <tr><td>模型不可用</td><td>超时/熔断</td><td>仅保存照片与语音，识别延后重试</td><td>「已记下，稍后补上识别」</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s10">
+  <div class="sec-head"><span class="sec-no">10</span><h2>隐私架构（本方案的核心）</h2><span class="sub">这个产品能成立，全靠「它记的比你想要的少」</span></div>
+  <div class="card">
+    <div class="notes">
+      <div class="note"><div class="nt">只记登记物品</div><p>物品列表只能由用户显式创建，系统<b>不自动发现、不自动扩充</b>。看见一只杯子不会记下来——因为这正是「家用摄像头」让人不安的地方。</p></div>
+      <div class="note"><div class="nt">只传 ROI，不传整图</div><p>上传前在端侧裁到 1024×1024 的物品区域，并做人脸/屏幕/证件号模糊。云端从未见过你家的全景。</p></div>
+      <div class="note"><div class="nt">缩略图不出端</div><p>照片加密存在手机本地；云端只回「这是深蓝色封皮的证件」这类文本描述，不存图。换机时数据不迁移，除非用户主动导出。</p></div>
+      <div class="note"><div class="nt">共享按物品授权</div><p>默认不共享；每件物品单独勾选可见成员。共享只共享「位置 + 照片」，不共享历史轨迹。</p></div>
+    </div>
+    <div class="callout"><b>对外一句话：</b>「它只记得你让它记的东西，照片从不离开这台手机。」这句话既是最强的隐私叙事，也是最容易验证的事实——评审时可以现场断网，除识别外的全链路仍然可用。</div>
+  </div>
+</section>
+
+<section id="s11">
+  <div class="sec-head"><span class="sec-no">11</span><h2>计划·指标·风险</h2></div>
+  <div class="tl">
+    <div class="tw"><div class="w">WEEK 1</div><h3>登记链路</h3><ul><li>拍记流程（≤15 秒）</li><li>ROI 裁剪 + 隐私模糊</li><li>识别 Schema 定稿</li></ul><div class="exit">出口：拍一张能自动建档</div></div>
+    <div class="tw"><div class="w">WEEK 2</div><h3>时间线与检索</h3><ul><li>SQLite 时间线</li><li>衰减模型</li><li>语音问答</li></ul><div class="exit">出口：问一句 3 秒内答</div></div>
+    <div class="tw"><div class="w">WEEK 3</div><h3>AR 引导 + 加分项</h3><ul><li>房间导航与照片对照</li><li>机器人状态事件接入</li><li>（可选）伙伴通道申请</li></ul><div class="exit">出口：能带人走到桌前</div></div>
+    <div class="tw"><div class="w">WEEK 4</div><h3>实测与评审</h3><ul><li>3 个家庭 × 20 件物品</li><li>last-seen 准确率</li><li>现场寻物演示</li></ul><div class="exit">出口：10 次提问 ≥8 次找对</div></div>
+  </div>
+  <div class="metrics" style="margin-top:16px">
+    <div class="mc"><div class="mi">位置准确率</div><div class="val">≥85%</div><p>房间级；人工埋点核对</p></div>
+    <div class="mc"><div class="mi">回答时延</div><div class="val">P95 3s</div><p>语音提问到开口</p></div>
+    <div class="mc"><div class="mi">拍记成本</div><div class="val">≤15s</div><p>从点击到保存</p></div>
+    <div class="mc"><div class="mi">隐私投诉</div><div class="val">0</div><p>种子家庭；且 100% 能说清数据去向</p></div>
+  </div>
+  <div class="risks" style="margin-top:14px">
+    <div class="rc"><h3>覆盖率天花板</h3><p>靠用户拍记，不可能「全屋自动记住」。</p><div class="fix">✓ 定位改为「重要的 30 件东西」，不承诺全屋</div></div>
+    <div class="rc"><h3>机器人接口不可用</h3><p>地图与坐标不在公开 API。</p><div class="fix">✓ 主线不依赖；伙伴通道只作 W3 加分项</div></div>
+    <div class="rc"><h3>「被记录」的观感</h3><p>即便只记物品，也可能引发不安。</p><div class="fix">✓ 只记登记物 + 只传 ROI + 照片不出端 + 可断网演示</div></div>
+  </div>
+</section>
+
+<section id="s12">
+  <div class="sec-head"><span class="sec-no">12</span><h2>架构决策记录（ADR）</h2></div>
+  <div class="adr">
+    <div class="a"><div class="h"><em>ADR-01</em>主线用手机拍记，不依赖机器人</div><p>依据：公开 API 只暴露扫地机运行状态，地图与坐标不在其中；定点清扫也无可调用接口。代价：需要用户动作；收益：今天就能跑通、精度更高、隐私更干净。</p></div>
+    <div class="a"><div class="h"><em>ADR-02</em>只记登记物品，不做通用扫描</div><p>依据：通用扫描的隐私观感与合规成本远高于产品价值。代价：覆盖率有限；收益：叙事站得住，评审敢开摄像头演示。</p></div>
+    <div class="a"><div class="h"><em>ADR-03</em>上传前裁剪 + 模糊，只传 ROI</div><p>依据：整图含大量无关隐私且更贵。代价：端侧多一步处理；收益：token 成本降一个量级，云端无全景。</p></div>
+    <div class="a"><div class="h"><em>ADR-04</em>房间手选，不做自动房间判定</div><p>依据：室内定位精度不足以可靠判房。代价：用户多点一下；收益：位置准确率可控，不会出现「把它记到邻居家」。</p></div>
+    <div class="a"><div class="h"><em>ADR-05</em>置信度用半衰期，且必须显示「很久没更新」</div><p>依据：物体会移动，旧记录天然贬值。代价：回答显得没那么「神」；收益：不会把用户引到错误的地方。</p></div>
+    <div class="a"><div class="h"><em>ADR-06</em>「带我去看看」用 AR + 照片对照，不指挥机器人</div><p>依据：无机器人的坐标级控制接口。代价：需要人走一趟；收益：演示可控、成本低、成功率反而更高。</p></div>
+    <div class="a"><div class="h"><em>ADR-07</em>缩略图永不出端</div><p>依据：图片是最难脱敏的数据。代价：换机不迁移、共享需重新授权；收益：云端即使被攻破也没有家庭影像。</p></div>
+  </div>
+</section>
+</div>
+<footer>POC 方向 05 · 全屋物品记忆 · 工程技术方案 v2 · 2026-10-21<br>接口可达性核对时间：2026-10-21 · 机器人巡航画面需合作伙伴通道，未获取时不影响主线</footer>
+</body>
+</html>

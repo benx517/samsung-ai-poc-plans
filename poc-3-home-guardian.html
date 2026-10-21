@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POC 方向 3 · 家的先知 Home Guardian · 工程技术方案 v2</title>
+<style>
+  :root{--bg:#070B14;--card:#0F1526;--card2:#121A2E;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+  --txt:#F2F5FA;--sub:#98A4BC;--faint:#5D6B87;--blue:#5B8CFF;--cyan:#3EE0C4;--orange:#FF9F43;--green:#4ADE80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:"PingFang SC","HarmonyOS Sans SC","MiSans","Microsoft YaHei",-apple-system,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px}
+  header{padding:58px 0 34px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .glow{position:absolute;width:500px;height:500px;border-radius:50%;filter:blur(100px);background:rgba(20,40,160,.28);top:-240px;left:-140px;pointer-events:none}
+  .eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;letter-spacing:.2em;color:var(--cyan);border:1px solid rgba(62,224,196,.35);border-radius:999px;padding:5px 14px;margin-bottom:20px;background:rgba(62,224,196,.06)}
+  h1{font-size:40px;font-weight:800}
+  h1 .en{display:block;font-size:15px;font-weight:600;letter-spacing:.3em;color:var(--faint);margin-top:8px;text-transform:uppercase}
+  .lead{margin-top:16px;font-size:15.5px;color:var(--sub);max-width:790px}
+  .lead b{color:var(--txt)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .chip{font-size:12px;color:#C9D4EA;background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:5px 14px}
+  .chip b{color:var(--blue)}
+  section{padding:40px 0 4px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+  .sec-no{font-size:13px;color:var(--blue);font-weight:700;letter-spacing:.2em}
+  .sec-head h2{font-size:23px;font-weight:800}
+  .sec-head .sub{font-size:11.5px;color:var(--faint)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .story{font-size:14px;color:var(--sub)}
+  .story b{color:var(--txt)}
+  .story .hl{color:var(--cyan);font-weight:600}
+  .alt{margin-top:12px;font-size:12.5px;color:var(--faint);border-left:2px solid var(--line2);padding-left:14px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;color:var(--faint);font-weight:600;letter-spacing:.06em;padding:9px 10px;border-bottom:1px solid var(--line2);font-size:11.5px}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--sub);vertical-align:top}
+  td b{color:var(--txt)}
+  td .ok{color:var(--green);font-size:10.5px;border:1px solid rgba(74,222,128,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .wip{color:var(--orange);font-size:10.5px;border:1px solid rgba(255,159,67,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .no{color:#FF6B6B;font-size:10.5px;border:1px solid rgba(255,107,107,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  .arch{display:grid;grid-template-columns:1fr 36px 1.25fr 36px 1fr;align-items:stretch;gap:0}
+  .acol h4{font-size:11.5px;letter-spacing:.16em;color:var(--faint);margin-bottom:10px}
+  .abox{background:var(--card2);border:1px solid var(--line2);border-radius:11px;padding:9px 12px;font-size:12.5px;margin-bottom:8px}
+  .abox small{display:block;font-size:10.5px;color:var(--faint);line-height:1.5}
+  .acore{background:linear-gradient(180deg,rgba(91,140,255,.1),rgba(62,224,196,.05));border:1px solid rgba(91,140,255,.4);border-radius:11px;padding:9px 12px;margin-bottom:8px}
+  .acore b{font-size:12.5px}.acore small{display:block;font-size:10.5px;color:var(--sub);line-height:1.5}
+  .alink{display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:12px}
+  .steps{counter-reset:s;display:flex;flex-direction:column;gap:11px}
+  .step{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:13px;align-items:start}
+  .step::before{content:counter(s,decimal-leading-zero);width:32px;height:32px;border-radius:9px;background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.4);color:var(--blue);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .step .st{font-size:14px;font-weight:700;margin-bottom:2px}
+  .step .st,.step .sd{grid-column:2}
+  .step .sd{font-size:12.5px;color:var(--sub)}
+  .step .sd code,p code,td code,li code{color:var(--cyan);font-size:11.5px;background:rgba(62,224,196,.08);padding:1px 5px;border-radius:5px;font-family:Consolas,monospace}
+  .notes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .note{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .note .nt{font-size:12.5px;font-weight:700;color:var(--cyan);margin-bottom:5px}
+  .note p{font-size:12px;color:var(--sub)}
+  .tl{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+  .tw{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px}
+  .tw .w{font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--blue)}
+  .tw h3{font-size:14px;margin:5px 0 7px}
+  .tw ul{list-style:none}
+  .tw li{font-size:11.5px;color:var(--sub);padding:2px 0 2px 13px;position:relative}
+  .tw li::before{content:"·";position:absolute;left:2px;color:var(--blue)}
+  .tw .exit{margin-top:8px;font-size:11px;color:var(--green);border-top:1px solid var(--line);padding-top:7px}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .mc{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px}
+  .mc .mi{font-size:10.5px;letter-spacing:.14em;color:var(--faint)}
+  .mc .val{font-size:23px;font-weight:800;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:4px 0}
+  .mc p{font-size:11.5px;color:var(--sub)}
+  .risks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .rc{background:var(--card);border:1px solid rgba(255,159,67,.22);border-radius:15px;padding:18px}
+  .rc h3{font-size:13.5px;margin-bottom:5px}
+  .rc p{font-size:11.5px;color:var(--sub)}
+  .rc .fix{margin-top:8px;font-size:11.5px;color:var(--green)}
+  .toc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .toc a{display:flex;gap:9px;font-size:12px;color:var(--sub);text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+  .toc a b{color:var(--blue);font-weight:700}
+  .code{background:#080D1A;border:1px solid var(--line2);border-radius:11px;padding:13px 15px;font-family:Consolas,"SF Mono",monospace;font-size:11.5px;line-height:1.72;color:#B9C6DE;overflow-x:auto;white-space:pre;margin-top:12px}
+  .code .c{color:var(--faint)}
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;font-size:12.5px}
+  .kv div{padding:7px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px}
+  .kv span{color:var(--faint)}.kv b{color:var(--txt);text-align:right}
+  .callout{border-left:2px solid var(--orange);background:rgba(255,159,67,.06);border-radius:0 11px 11px 0;padding:13px 16px;font-size:12.5px;color:var(--sub);margin-top:12px}
+  .callout b{color:var(--orange)}
+  .callout.good{border-color:var(--green);background:rgba(74,222,128,.06)}
+  .callout.good b{color:var(--green)}
+  .callout.info{border-color:var(--blue);background:rgba(91,140,255,.06)}
+  .callout.info b{color:var(--blue)}
+  .matrix td:first-child{color:var(--txt);font-weight:600;font-size:11.5px}
+  .adr{display:flex;flex-direction:column;gap:9px}
+  .adr .a{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+  .adr .a .h{font-size:13px;font-weight:700;margin-bottom:3px}
+  .adr .a .h em{font-style:normal;font-size:10px;color:var(--blue);border:1px solid rgba(91,140,255,.4);border-radius:5px;padding:1px 6px;margin-right:7px;letter-spacing:.08em}
+  .adr .a p{font-size:12px;color:var(--sub)}
+  ul.tight{list-style:none;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--sub)}
+  ul.tight li{padding-left:13px;position:relative}
+  ul.tight li::before{content:"—";position:absolute;left:0;color:var(--blue)}
+  h3.bt{font-size:14px;margin:22px 0 10px;color:var(--txt)}
+  h3.bt:first-child{margin-top:0}
+  .src{font-size:10.5px;color:var(--faint);margin-top:9px;line-height:1.7}
+  footer{margin-top:52px;padding:28px 0 40px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);text-align:center;line-height:1.9}
+  @media(max-width:900px){.arch{grid-template-columns:1fr}.alink{transform:rotate(90deg);padding:8px 0}.tl,.metrics,.risks,.notes,.toc,.kv{grid-template-columns:1fr}h1{font-size:29px}}
+</style>
+</head>
+<body>
+<header><div class="glow"></div><div class="wrap">
+  <div class="eyebrow">POC 方向 03 · 工程技术方案 · v2 细化版</div>
+  <h1>家的先知<span class="en">Home Guardian</span></h1>
+  <p class="lead">不装摄像头、不戴额外设备——用 <b>SmartThings 家电的行为遥测</b>（冰箱门、洗烘、电视、灯）建立个人生活基线，当两路以上信号同时偏离时，先<b>轻声问一句</b>，再决定要不要打扰子女。<br>本文档细化到<b>信号定义、基线算法、打分公式、分级响应、权限门槛与失败矩阵</b>；并明确一件事：<b>这不是急救设备</b>。</p>
+  <div class="chips">
+    <div class="chip">载体 <b>SmartThings 全家桶 + S26</b></div>
+    <div class="chip">核心 <b>行为遥测 + 个人基线</b></div>
+    <div class="chip">健康 <b>仅周级参考（降级）</b></div>
+    <div class="chip">周期 <b>4 周</b> · 2 人月</div>
+    <div class="chip">版本 <b>v2 · 2026-10-21</b></div>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="sec-head"><span class="sec-no">00</span><h2>目录</h2></div>
+  <div class="toc">
+    <a href="#s01"><b>01</b>概念与主场景</a>
+    <a href="#s02"><b>02</b>事实基线与硬约束</a>
+    <a href="#s03"><b>03</b>系统架构（组件级）</a>
+    <a href="#s04"><b>04</b>信号定义与基线算法</a>
+    <a href="#s05"><b>05</b>分级响应与话术</a>
+    <a href="#s06"><b>06</b>数据契约</a>
+    <a href="#s07"><b>07</b>延迟特性与成本</a>
+    <a href="#s08"><b>08</b>失败处理矩阵</a>
+    <a href="#s09"><b>09</b>隐私、伦理与合规</a>
+    <a href="#s10"><b>10</b>计划·指标·风险</a>
+    <a href="#s11"><b>11</b>架构决策记录（ADR）</a>
+  </div>
+</section>
+
+<section id="s01">
+  <div class="sec-head"><span class="sec-no">01</span><h2>概念与主场景</h2><span class="sub">单看一个信号毫无意义，叠加起来才是故事</span></div>
+  <div class="card">
+    <p class="story">独居的张阿姨最近有些反常：冰箱门连续 3 天几乎没开过（基线日均 14 次，降到 2 次）、电视从每天 4 小时掉到 20 分钟、客厅灯晚上 7 点后没亮过。<b>三个信号单独看都能解释</b>——可能出门了、可能早睡了。<span class="hl">但它们同时往下掉，这在过去 90 天里没出现过。</span>系统先在电视上轻声问：「张阿姨，今天身体还好吗？」她说「有点感冒，不想吃」。系统降级为关怀模式，只给女儿发一条不刺眼的消息：「妈妈今天说有点感冒，吃得少，建议晚上打个电话。」第二天冰箱门次数回升，基线自动恢复——系统什么都没再说。</p>
+    <p class="alt">备选场景：养宠家庭（喂食器/饮水机使用异常 + 活动量下降）；有孩家庭（夜间频繁开门 + 客厅灯长亮 → 安全确认）；出差模式（长期无人 → 异常开门提醒）。</p>
+    <div class="callout"><b>先划清边界：</b>这套东西<b>不是跌倒检测，不是急救，不是医疗设备</b>。它监测的是「生活节律的塌陷」，时间尺度是天，不是分钟。任何把宣传口径做成「老人摔倒能报警」的做法，都会在第一次真事故时变成法律责任。</div>
+  </div>
+</section>
+
+<section id="s02">
+  <div class="sec-head"><span class="sec-no">02</span><h2>事实基线与硬约束</h2><span class="sub">这一节直接决定了「健康数据不能做主链路」</span></div>
+  <div class="card">
+    <h3 class="bt">2.1 设备事件基线（SmartThings）</h3>
+    <table>
+      <tr><th>项</th><th>事实</th><th>对方案的影响</th></tr>
+      <tr><td><b>订阅机制</b></td><td>每个 Installed App 最多 40 条订阅；创建 40 次/15 分钟；单事件 ≤10 KiB</td><td>只订阅必要 capability；事件里不放自由文本</td></tr>
+      <tr><td><b>读取频率</b></td><td>设备状态读取 12 次/分钟/设备；<b>推送优先，轮询兜底</b></td><td>正常走订阅，断线重连后才补一次全量状态</td></tr>
+      <tr><td><b>设备规模</b></td><td>单 App 最多 30 台云连接设备</td><td>一个家庭 5–12 台，够用</td></tr>
+      <tr><td><b>规则</b></td><td>Rules API：100 条/用户、50 条/Installed App</td><td>复杂判定放服务端，规则只做简单联动</td></tr>
+      <tr><td><b>计费</b></td><td>API 自 2026-10 转付费，个人档约 <b>$4.99/月</b>；免费期到 2026 年 9 月底</td><td>每户每月固定成本，评审预算要列</td></tr>
+      <tr><td><b>令牌</b></td><td>PAT 现只有 24 小时有效期；生产必须 OAuth</td><td>服务端 OAuth + 刷新，令牌不下端</td></tr>
+    </table>
+
+    <h3 class="bt">2.2 健康数据基线（这是 v1 需要改的地方）</h3>
+    <table>
+      <tr><th>路径</th><th>能拿到什么</th><th>门槛与限制</th></tr>
+      <tr><td><b>Health Connect</b></td><td>步数、心率、睡眠、血氧、体重等标准化记录</td><td>默认<b>只能读最近 30 天</b>，读更早需历史权限；后台连续采集需后台权限；<b>没有睡眠呼吸暂停记录类型</b></td></tr>
+      <tr><td><b>Health Connect 的数据新鲜度</b></td><td>由 Samsung Health 决定何时导出</td><td>实测同一时刻：App 内 4,566 步 / Health Connect 3,211 步，且只导出了步数、滞后约 90 分钟；<b>应用无法强制它导更多、更快</b></td></tr>
+      <tr><td><b>Samsung Health Data SDK</b></td><td>睡眠呼吸暂停、不规则心律通知等专有数据</td><td>需<b>合作伙伴审批</b>并登记包名 + 签名证书；仅三星设备；未审批只能开发者模式本机测试，否则直接报授权错误</td></tr>
+      <tr><td><b>Samsung Health Platform（服务端）</b></td><td>运动/睡眠/健康/身体成分等</td><td>需申请开发者计划，审批约 5–15 个工作日；OAuth 分环境凭据</td></tr>
+      <tr><td><b>Health Sensor SDK</b></td><td>原始 ECG（500Hz）、按需 PPG（100Hz，单次约 30 秒）、连续 PPG/ACC（25Hz）、皮温、生物阻抗</td><td>合作伙伴审批；<b>不是本 POC 该碰的东西</b></td></tr>
+    </table>
+    <p class="src">监管口径补充：三星睡眠呼吸暂停功能是 FDA <b>De Novo 授权（DEN230041，2024-02-06）</b>，并由 2026-07-20 的 K261011 扩展至 18 岁以上并支持 Galaxy Ring；其适应症明确<b>不用于独立诊断、不替代多导睡眠监测</b>。血压功能无 FDA 记录。任何「手表能查出病」的表述都不成立。</p>
+
+    <div class="callout"><b>结论（v2 的关键调整）：</b>健康数据三条路径全部有审批闸门，且 Health Connect 有 30 天窗口 + 90 分钟级滞后、无法强制刷新。所以<b>健康数据只能做「周级参考」，绝不进触发链路</b>。v1 里「Watch8 心率异常 → 触发预警」的写法撤回。</div>
+  </div>
+</section>
+
+<section id="s03">
+  <div class="sec-head"><span class="sec-no">03</span><h2>系统架构（组件级）</h2><span class="sub">原始事件不出户，云端只看到聚合后的每日特征</span></div>
+  <div class="arch">
+    <div class="acol"><h4>家庭侧 · 手机 / 中枢</h4>
+      <div class="abox">SmartThings 事件订阅<small>门 / 洗烘 / 电视 / 灯 / 扫地机</small></div>
+      <div class="abox">本地特征聚合<small>事件 → 每日标量（次数/时长/时段）</small></div>
+      <div class="abox">基线库（SQLite）<small>median / MAD，滚动 90 天</small></div>
+      <div class="abox">本地告警队列<small>先问再报，可撤回</small></div>
+    </div>
+    <div class="alink">→</div>
+    <div class="acol"><h4>服务端 · GUARDIAN</h4>
+      <div class="acore"><b>评分引擎（规则）</b><small>robust z-score + 加权 + concurrence</small></div>
+      <div class="acore"><b>证据链生成（3.5 Flash）</b><small>只把数字翻译成人话，不改判定</small></div>
+      <div class="acore"><b>响应编排</b><small>L1–L4 状态机 · 冷却窗口 · 免打扰</small></div>
+      <div class="acore"><b>家属侧 API</b><small>授权关系 · 通知 · 撤回</small></div>
+    </div>
+    <div class="alink">→</div>
+    <div class="acol"><h4>触达面</h4>
+      <div class="abox">电视语音询问<small>大屏、声音温和、可一句话取消</small></div>
+      <div class="abox">手机 / 手表<small>本人优先，家属其次</small></div>
+      <div class="abox">Now Brief 周报<small>「这周家里还好」摘要</small></div>
+      <div class="abox">家属端卡片<small>仅异常时，附证据链</small></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <table>
+      <tr><th>设计原则</th><th>落地方式</th></tr>
+      <tr><td><b>本人优先于家属</b></td><td>任何 L3 家属通知前，必须先有一次 L2 本人询问且 12 小时无回应；本人可一键关闭家属通道</td></tr>
+      <tr><td><b>判定与措辞分离</b></td><td>分数由规则算，措辞由模型写；模型不能改变等级</td></tr>
+      <tr><td><b>可解释即产品</b></td><td>无证据链的告警直接丢弃，不发「疑似异常」这种话</td></tr>
+      <tr><td><b>宁可漏报</b></td><td>阈值刻意保守；漏报是产品缺陷，误报是信任崩塌</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s04">
+  <div class="sec-head"><span class="sec-no">04</span><h2>信号定义与基线算法</h2><span class="sub">每个信号都必须是「事件能数出来」的量，不是「感觉」</span></div>
+  <div class="card">
+    <h3 class="bt">4.1 信号清单（首版 6 个）</h3>
+    <table>
+      <tr><th>信号</th><th>定义</th><th>数据来源</th><th>方向性</th><th>权重</th></tr>
+      <tr><td><b>冷藏门开启次数</b></td><td>每日 00:00–24:00 门开事件计数</td><td>冰箱 door capability</td><td>下降异常</td><td>1.2</td></tr>
+      <tr><td><b>烹饪设备使用</b></td><td>灶具/烤箱/微波炉每日运行时长合计</td><td>SmartThings 运行状态</td><td>下降异常</td><td>1.2</td></tr>
+      <tr><td><b>电视开机时长</b></td><td>每日开机分钟数</td><td>TV 电源状态</td><td>双向</td><td>1.0</td></tr>
+      <tr><td><b>夜间照明</b></td><td>18:00–24:00 客厅灯累计亮灯分钟</td><td>灯开关/亮度</td><td>下降异常</td><td>1.0</td></tr>
+      <tr><td><b>洗衣频次</b></td><td>滚动 7 天洗衣完成次数</td><td>洗衣机运行状态</td><td>下降异常</td><td>0.8</td></tr>
+      <tr><td><b>手机活跃时段</b></td><td>每日首次解锁时间（仅时刻，不看内容）</td><td>端侧统计</td><td>推迟异常</td><td>1.0</td></tr>
+    </table>
+    <p class="src">刻意不做的信号：摄像头画面、麦克风常听、通讯录与通话对象、位置轨迹、任何健康生理值。理由写在 09 节。</p>
+
+    <h3 class="bt">4.2 基线：滚动中位数 + MAD（不用均值）</h3>
+    <div class="code"><span class="c">// 每个信号按 90 天滚动窗口计算；中位数对"偶尔来客人"这类尖峰免疫</span>
+median_i = median(x_i[1..90])
+mad_i    = median(|x_i - median_i|)
+scale_i  = 1.4826 * mad_i + 0.5        <span class="c">// 0.5 防止除零</span>
+z_i      = (x_i_today - median_i) / scale_i
+<span class="c">// 只关心"塌陷"方向的信号，取负向偏离；双向信号取绝对值</span>
+dev_i    = max(0, -z_i - 1.5)          <span class="c">// 1.5σ 以内视为正常波动，不产生分数</span>
+score    = Σ (w_i * dev_i)             <span class="c">// 裁剪单信号上限 4.0，防止一个信号主导</span>
+activeSignals = count(|z_i| > 2.0)</div>
+
+    <h3 class="bt">4.3 触发条件（三条同时成立）</h3>
+    <div class="kv">
+      <div><span>条件 1</span><b>activeSignals ≥ 2（至少两路同时异常）</b></div>
+      <div><span>条件 2</span><b>score ≥ 3.0</b></div>
+      <div><span>条件 3</span><b>连续 2 天成立（避免单日噪声）</b></div>
+      <div><span>冷启动</span><b>前 14 天只学习不告警</b></div>
+      <div><span>冷却窗口</span><b>同一家庭 7 天内最多 1 次 L2 询问</b></div>
+      <div><span>免打扰</span><b>22:30–07:30 不发起 L2（L4 除外）</b></div>
+    </div>
+    <div class="callout info"><b>为什么必须 concurrence：</b>单个冰箱门少开两天，最常见的原因是「出去玩了」。只有两路以上、且跨设备类型同时塌陷，才具备「生活节律改变」的判别力。这条规则会把误报压下一个数量级，代价是漏报——这是刻意的取舍。</div>
+  </div>
+</section>
+
+<section id="s05">
+  <div class="sec-head"><span class="sec-no">05</span><h2>分级响应与话术</h2><span class="sub">四级，每级都有明确的退出条件</span></div>
+  <div class="card">
+    <table>
+      <tr><th>级别</th><th>触发</th><th>动作</th><th>退出条件</th></tr>
+      <tr><td><b>L1 记录</b></td><td>score ≥3.0 但仅 1 天</td><td>只写本地日志，不打扰任何人</td><td>次日恢复即清零</td></tr>
+      <tr><td><b>L2 本人询问</b></td><td>连续 2 天成立</td><td>电视/手机语音温和询问，附一句可验证的事实（「这两天冰箱开得少了」）</td><td>回答「没事」→ 记录负样本，7 天不再问</td></tr>
+      <tr><td><b>L3 家属提示</b></td><td>L2 后 12 小时无回应，或本人回答「不太舒服」</td><td>给已授权的家属发一条低强度消息 + 证据链三行</td><td>家属确认已联系 → 关闭</td></tr>
+      <tr><td><b>L4 建议求助</b></td><td>L3 后 24 小时仍无任何交互，且信号持续恶化</td><td>建议家属上门/联系邻里，并提供完整时间线</td><td>人工关闭</td></tr>
+    </table>
+    <h3 class="bt">5.1 话术示例（模板化，模型只填数字）</h3>
+    <div class="code"><span class="c">// L2（本人）</span>
+「张阿姨，我看您这两天冰箱开得比平时少，是不是不太舒服？没事的话我就不打扰了。」
+<span class="c">// L3（家属，微信/短信级，不打电话）</span>
+「妈妈这两天做饭和开冰箱都比平时少很多（近 3 天冰箱 2 次，平时 14 次），
+ 今天问她说有点感冒。建议晚上给她打个电话。」
+<span class="c">// 禁止出现的表达</span>
+「检测到异常」「健康风险」「可能患病」「建议就医」——一律不出现在产品文案里</div>
+    <p class="src">话术由产品 + 法务共同维护；模型只允许填 <code>{次数}</code>、<code>{天数}</code> 这类占位符，且数字必须来自同一份证据链。</p>
+  </div>
+</section>
+
+<section id="s06">
+  <div class="sec-head"><span class="sec-no">06</span><h2>数据契约</h2></div>
+  <div class="card">
+    <div class="code"><span class="c">// 1) 每日特征（唯一上云的粒度）</span>
+DailyFeature {
+  householdId; date;
+  signals: [{ key:"fridge_door"|"cooking"|"tv"|"night_light"|"laundry"|"phone_first_unlock",
+              value: number, unit, coverage: 0..1 }];   <span class="c">// coverage = 该设备当天在线比例</span>
+}
+
+<span class="c">// 2) 基线（端侧持有）</span>
+Baseline { key; median; mad; sampleDays; updatedAt }
+
+<span class="c">// 3) 评估结果</span>
+Assessment {
+  assessmentId; householdId; date;
+  score; activeSignals; level: 1..4;
+  evidence: [{ key, today, median, deltaPct, z }];
+  suppressedReason?: "cold_start"|"cooldown"|"coverage_low";
+}
+
+<span class="c">// 4) 响应记录（可撤回）</span>
+ResponseRecord { responseId; assessmentId; level; channel; sentAt; ackAt?; cancelReason? }</div>
+    <p class="src"><code>coverage</code> 是关键字段：设备离线那天所有信号都会「下降」，如果不按在线比例折算，断网一次就会误报一次。<b>coverage &lt; 0.6 的日子直接不参与判定</b>。</p>
+  </div>
+</section>
+
+<section id="s07">
+  <div class="sec-head"><span class="sec-no">07</span><h2>延迟特性与成本</h2><span class="sub">这是一个「天级」产品，不要假装实时</span></div>
+  <div class="card">
+    <table>
+      <tr><th>环节</th><th>时延</th><th>说明</th></tr>
+      <tr><td>设备事件 → 本地特征</td><td>秒级</td><td>订阅推送，端侧累加</td></tr>
+      <tr><td>每日特征 → 评分</td><td>每小时批一次</td><td>不需要实时；凌晨 03:00 做当日终评</td></tr>
+      <tr><td>评分 → L2 询问</td><td>≤30 分钟</td><td>避开免打扰时段，排队到 08:00 或 19:00 两个窗口</td></tr>
+      <tr><td>L2 → L3</td><td>12 小时</td><td>刻意留出「本人自己处理」的时间</td></tr>
+      <tr><td>L3 文案生成</td><td>&lt;2s</td><td>3.5 Flash，一天最多几次调用</td></tr>
+    </table>
+    <h3 class="bt">7.1 成本（每户每月）</h3>
+    <table>
+      <tr><th>项</th><th>用量</th><th>成本</th></tr>
+      <tr><td>SmartThings API</td><td>固定订阅</td><td>≈ $4.99</td></tr>
+      <tr><td>3.5 Flash（证据链文案）</td><td>约 30 次/月 × 2k token</td><td>≈ $0.10</td></tr>
+      <tr><td>存储（仅每日特征）</td><td>365 行/户/年，极小</td><td>可忽略</td></tr>
+      <tr><td><b>合计</b></td><td></td><td><b>≈ $5.1/户/月（¥36）</b></td></tr>
+    </table>
+    <p class="src">成本几乎全在 SmartThings 订阅费上——这也是为什么「免费增值」模型很难成立，产品必须是硬件附着服务或家庭套餐。</p>
+  </div>
+</section>
+
+<section id="s08">
+  <div class="sec-head"><span class="sec-no">08</span><h2>失败处理矩阵</h2></div>
+  <div class="card" style="padding:10px 18px">
+    <table class="matrix">
+      <tr><th>失败场景</th><th>检测信号</th><th>降级动作</th><th>用户/家属看到</th></tr>
+      <tr><td>设备离线导致假下降</td><td><code>coverage &lt; 0.6</code></td><td>当日不判定，标记「数据不足」</td><td>无打扰（周报里注明「本周有 2 天数据不全」）</td></tr>
+      <tr><td>外出旅行</td><td>全部信号同时归零 + 门锁/位置线索</td><td>识别为「离家模式」，暂停判定，返回后重新累计</td><td>无打扰</td></tr>
+      <tr><td>家里来客人</td><td>信号<b>上升</b>而非下降</td><td>只记录不告警（本产品只关心塌陷方向）</td><td>无打扰</td></tr>
+      <tr><td>基线漂移（季节变化）</td><td>连续 14 天中位数单调移动</td><td>基线按 90 天窗口自动跟随，不做人工干预</td><td>无打扰</td></tr>
+      <tr><td>冷启动期异常</td><td><code>sampleDays &lt; 14</code></td><td>不判定，用群体基线仅作展示参考</td><td>「还在熟悉您家的作息」</td></tr>
+      <tr><td>误报被取消</td><td>本人回答「没事」</td><td>写入负样本；该组合 7 天内不再触发</td><td>无打扰</td></tr>
+      <tr><td>家属未授权</td><td>无有效授权关系</td><td>L3 降级为 L2 再问一次，不外发</td><td>「要不要告诉家人？」</td></tr>
+      <tr><td>消息通道失败</td><td>推送回执失败</td><td>重试 3 次后转短信；仍失败则记录待人工</td><td>家属端看到「未送达」</td></tr>
+      <tr><td>模型文案失败</td><td>结构化返回异常</td><td>回退到纯模板（只填数字）</td><td>文案略生硬，但信息完整</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s09">
+  <div class="sec-head"><span class="sec-no">09</span><h2>隐私、伦理与合规</h2><span class="sub">这个产品最容易死在「不被信任」，不是死在技术</span></div>
+  <div class="card">
+    <div class="notes">
+      <div class="note"><div class="nt">不做的事（硬边界）</div><p>不装摄像头、不常听麦克风、不读通话记录与通讯录、不取位置轨迹、不做任何疾病判断、不做急救承诺。这些不是「暂不做」，是产品定义的一部分。</p></div>
+      <div class="note"><div class="nt">双向同意</div><p>被照看者本人必须知情并单独同意（中国《个人信息保护法》下行为数据可构成敏感个人信息，需单独同意）；家属侧授权必须由本人授予，且本人可随时一键关闭。<b>不能由子女单方面开通。</b></p></div>
+      <div class="note"><div class="nt">数据最小化</div><p>上云只有「每日标量」：次数、时长、是否异常。设备级原始事件、时间戳序列全部留在家庭本地；云端连「几点开的冰箱」都看不到。</p></div>
+      <div class="note"><div class="nt">可退出与可删除</div><p>关闭后立即停止采集；删除请求 7 天内清除云侧全部特征与基线；本地数据由用户在设备上清除。周报里明确写「数据只用于这份摘要」。</p></div>
+    </div>
+    <div class="callout"><b>舆论风险要提前设计：</b>「家电在监控老人」是最容易引爆的叙事。产品对外表述必须是「<b>家电在替家人留意生活节律</b>」，且演示时必须主动说明「我们看不到画面、听不到声音、不知道你几点开的冰箱」——把不可见性做成卖点，而不是等人来质疑。</div>
+  </div>
+</section>
+
+<section id="s10">
+  <div class="sec-head"><span class="sec-no">10</span><h2>计划·指标·风险</h2></div>
+  <div class="tl">
+    <div class="tw"><div class="w">WEEK 1</div><h3>数据与基线</h3><ul><li>SmartThings 订阅接入</li><li>6 个信号端侧聚合</li><li>历史回放（≥90 天样本）</li></ul><div class="exit">出口：能算出真实 z 值分布</div></div>
+    <div class="tw"><div class="w">WEEK 2</div><h3>评分与阈值</h3><ul><li>加权 + concurrence 调参</li><li>案例集标注（含负例）</li><li>coverage 折算</li></ul><div class="exit">出口：误报率有基线数字</div></div>
+    <div class="tw"><div class="w">WEEK 3</div><h3>响应闭环</h3><ul><li>L1–L4 状态机</li><li>电视/手机询问</li><li>证据链与周报</li></ul><div class="exit">出口：一句话可取消</div></div>
+    <div class="tw"><div class="w">WEEK 4</div><h3>种子实测</h3><ul><li>3 个家庭 2 周</li><li>打扰频次统计</li><li>信任度访谈 + 评审</li></ul><div class="exit">出口：每周打扰 ≤1 次</div></div>
+  </div>
+  <div class="metrics" style="margin-top:16px">
+    <div class="mc"><div class="mi">打扰频次</div><div class="val">≤1 次/周</div><p>每户 L2 及以上触达</p></div>
+    <div class="mc"><div class="mi">案例集召回</div><div class="val">≥75%</div><p>标注的「真实不适期」命中率</p></div>
+    <div class="mc"><div class="mi">取消率</div><div class="val">&lt;20%</div><p>「没事，不用管」占比</p></div>
+    <div class="mc"><div class="mi">家属信任</div><div class="val">≥75%</div><p>愿长期开启的比例</p></div>
+  </div>
+  <div class="risks" style="margin-top:14px">
+    <div class="rc"><h3>召回数字很难看</h3><p>4 周内只有 3 户、2 周数据，统计上不显著。</p><div class="fix">✓ 只报「案例集回放召回 + 误报频次」，不吹泛化能力</div></div>
+    <div class="rc"><h3>健康数据用不上</h3><p>三条路径都有审批闸门与滞后。</p><div class="fix">✓ 主链路纯行为遥测；健康只做周报背景，不进判定</div></div>
+    <div class="rc"><h3>伦理争议</h3><p>「子女监控父母」的叙事风险。</p><div class="fix">✓ 本人授予 + 双向可见 + 不采集画面声音 + 演示主动说明</div></div>
+  </div>
+</section>
+
+<section id="s11">
+  <div class="sec-head"><span class="sec-no">11</span><h2>架构决策记录（ADR）</h2></div>
+  <div class="adr">
+    <div class="a"><div class="h"><em>ADR-01</em>主链路只用 SmartThings 行为遥测，健康数据不进判定</div><p>依据：Health Connect 默认 30 天窗口且导出滞后、Data SDK 需合作伙伴审批、Platform API 审批 5–15 个工作日。代价：少了「生理指标」叙事；收益：POC 能在 4 周内真正跑起来。</p></div>
+    <div class="a"><div class="h"><em>ADR-02</em>用中位数 + MAD，不用均值与标准差</div><p>依据：家庭行为分布长尾（来客人、节假日）。代价：对渐变不敏感；收益：尖峰不污染基线。</p></div>
+    <div class="a"><div class="h"><em>ADR-03</em>必须两路以上 concurrence 才触发</div><p>依据：单信号下降最常见的解释是外出。代价：漏报；收益：误报降一个数量级。</p></div>
+    <div class="a"><div class="h"><em>ADR-04</em>模型只写措辞，不改等级</div><p>依据：分级影响真实人际关系，不能让概率模型决定要不要通知子女。代价：话术需穷举；收益：可解释、可审计。</p></div>
+    <div class="a"><div class="h"><em>ADR-05</em>上云只传每日标量，不传事件序列</div><p>依据：时序细节可反推作息与在家人数，属敏感信息。代价：云端无法做细粒度分析；收益：隐私叙事站得住。</p></div>
+    <div class="a"><div class="h"><em>ADR-06</em>不做实时告警，不做急救定位</div><p>依据：数据链路本身是天级，且急救责任无法承担。代价：失去「安全硬件」定位；收益：不产生致命期望。</p></div>
+    <div class="a"><div class="h"><em>ADR-07</em>coverage &lt; 0.6 直接弃判</div><p>依据：设备离线会造成系统性「假下降」。代价：可用天数减少；收益：断网不再引发误报。</p></div>
+  </div>
+</section>
+</div>
+<footer>POC 方向 03 · 家的先知 · 工程技术方案 v2 · 2026-10-21<br>健康数据能力与监管口径核对时间：2026-10-21 · 涉及医疗表述须经法务与合规复核</footer>
+</body>
+</html>

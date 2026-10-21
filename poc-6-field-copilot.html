@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POC 方向 6 · 现场副驾 Field Copilot · 工程技术方案 v2</title>
+<style>
+  :root{--bg:#070B14;--card:#0F1526;--card2:#121A2E;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+  --txt:#F2F5FA;--sub:#98A4BC;--faint:#5D6B87;--blue:#5B8CFF;--cyan:#3EE0C4;--orange:#FF9F43;--green:#4ADE80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:"PingFang SC","HarmonyOS Sans SC","MiSans","Microsoft YaHei",-apple-system,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px}
+  header{padding:60px 0 36px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .glow{position:absolute;width:500px;height:500px;border-radius:50%;filter:blur(100px);background:rgba(20,40,160,.28);top:-240px;left:-140px;pointer-events:none}
+  .eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;letter-spacing:.2em;color:var(--cyan);border:1px solid rgba(62,224,196,.35);border-radius:999px;padding:5px 14px;margin-bottom:20px;background:rgba(62,224,196,.06)}
+  h1{font-size:40px;font-weight:800}
+  h1 .en{display:block;font-size:15px;font-weight:600;letter-spacing:.3em;color:var(--faint);margin-top:8px;text-transform:uppercase}
+  .lead{margin-top:16px;font-size:15.5px;color:var(--sub);max-width:760px}
+  .lead b{color:var(--txt)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .chip{font-size:12px;color:#C9D4EA;background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:5px 14px}
+  .chip b{color:var(--blue)}
+  section{padding:40px 0 4px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .sec-no{font-size:13px;color:var(--blue);font-weight:700;letter-spacing:.2em}
+  .sec-head h2{font-size:23px;font-weight:800}
+  .sec-head .sub{font-size:11.5px;color:var(--faint);letter-spacing:.02em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .story{font-size:14px;color:var(--sub)}
+  .story b{color:var(--txt)}
+  .story .hl{color:var(--cyan);font-weight:600}
+  .alt{margin-top:12px;font-size:12.5px;color:var(--faint);border-left:2px solid var(--line2);padding-left:14px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;color:var(--faint);font-weight:600;letter-spacing:.06em;padding:9px 10px;border-bottom:1px solid var(--line2);font-size:11.5px}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--sub);vertical-align:top}
+  td b{color:var(--txt)}
+  td .ok{color:var(--green);font-size:10.5px;border:1px solid rgba(74,222,128,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .wip{color:var(--orange);font-size:10.5px;border:1px solid rgba(255,159,67,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .no{color:#FF6B6B;font-size:10.5px;border:1px solid rgba(255,107,107,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  .arch{display:grid;grid-template-columns:1fr 40px 1.3fr 40px 1fr;align-items:stretch;gap:0}
+  .acol h4{font-size:11.5px;letter-spacing:.16em;color:var(--faint);margin-bottom:10px}
+  .abox{background:var(--card2);border:1px solid var(--line2);border-radius:11px;padding:9px 12px;font-size:12.5px;margin-bottom:8px}
+  .abox small{display:block;font-size:10.5px;color:var(--faint);line-height:1.5}
+  .acore{background:linear-gradient(180deg,rgba(91,140,255,.1),rgba(62,224,196,.05));border:1px solid rgba(91,140,255,.4);border-radius:11px;padding:9px 12px;margin-bottom:8px}
+  .acore b{font-size:12.5px}.acore small{display:block;font-size:10.5px;color:var(--sub);line-height:1.5}
+  .alink{display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:12px}
+  .steps{counter-reset:s;display:flex;flex-direction:column;gap:11px}
+  .step{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:13px;align-items:start}
+  .step::before{content:counter(s,decimal-leading-zero);width:32px;height:32px;border-radius:9px;background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.4);color:var(--blue);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .step .st{font-size:14px;font-weight:700;margin-bottom:2px}
+  .step .st,.step .sd{grid-column:2}  /* 标题与正文都锁定在内容列，避免正文落进编号列 */
+  .step .sd{font-size:12.5px;color:var(--sub)}
+  .step .sd code,p code,td code{color:var(--cyan);font-size:11.5px;background:rgba(62,224,196,.08);padding:1px 5px;border-radius:5px;font-family:Consolas,monospace}
+  .notes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .note{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .note .nt{font-size:12.5px;font-weight:700;color:var(--cyan);margin-bottom:5px}
+  .note p{font-size:12px;color:var(--sub)}
+  .tl{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+  .tw{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px}
+  .tw .w{font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--blue)}
+  .tw h3{font-size:14px;margin:5px 0 7px}
+  .tw ul{list-style:none}
+  .tw li{font-size:11.5px;color:var(--sub);padding:2px 0 2px 13px;position:relative}
+  .tw li::before{content:"·";position:absolute;left:2px;color:var(--blue)}
+  .tw .exit{margin-top:8px;font-size:11px;color:var(--green);border-top:1px solid var(--line);padding-top:7px}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .mc{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px}
+  .mc .mi{font-size:10.5px;letter-spacing:.14em;color:var(--faint)}
+  .mc .val{font-size:24px;font-weight:800;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:4px 0}
+  .mc p{font-size:11.5px;color:var(--sub)}
+  .risks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .rc{background:var(--card);border:1px solid rgba(255,159,67,.22);border-radius:15px;padding:18px}
+  .rc h3{font-size:13.5px;margin-bottom:5px}
+  .rc p{font-size:11.5px;color:var(--sub)}
+  .rc .fix{margin-top:8px;font-size:11.5px;color:var(--green)}
+  .toc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .toc a{display:flex;gap:9px;font-size:12px;color:var(--sub);text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+  .toc a b{color:var(--blue);font-weight:700}
+  .code{background:#080D1A;border:1px solid var(--line2);border-radius:11px;padding:13px 15px;font-family:Consolas,"SF Mono",monospace;font-size:11.5px;line-height:1.72;color:#B9C6DE;overflow-x:auto;white-space:pre;margin-top:12px}
+  .code .c{color:var(--faint)}
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;font-size:12.5px}
+  .kv div{padding:7px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px}
+  .kv span{color:var(--faint)}.kv b{color:var(--txt);text-align:right}
+  .callout{border-left:2px solid var(--orange);background:rgba(255,159,67,.06);border-radius:0 11px 11px 0;padding:13px 16px;font-size:12.5px;color:var(--sub);margin-top:12px}
+  .callout b{color:var(--orange)}
+  .callout.good{border-color:var(--green);background:rgba(74,222,128,.06)}
+  .callout.good b{color:var(--green)}
+  .callout.info{border-color:var(--blue);background:rgba(91,140,255,.06)}
+  .callout.info b{color:var(--blue)}
+  .matrix td:first-child{color:var(--txt);font-weight:600;font-size:11.5px}
+  .adr{display:flex;flex-direction:column;gap:9px}
+  .adr .a{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+  .adr .a .h{font-size:13px;font-weight:700;margin-bottom:3px}
+  .adr .a .h em{font-style:normal;font-size:10px;color:var(--blue);border:1px solid rgba(91,140,255,.4);border-radius:5px;padding:1px 6px;margin-right:7px;letter-spacing:.08em}
+  .adr .a p{font-size:12px;color:var(--sub)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .src{font-size:10.5px;color:var(--faint);margin-top:9px;line-height:1.7}
+  ul.tight{list-style:none;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--sub)}
+  ul.tight li{padding-left:13px;position:relative}
+  ul.tight li::before{content:"—";position:absolute;left:0;color:var(--blue)}
+  h3.bt{font-size:14px;margin:22px 0 10px;color:var(--txt)}
+  h3.bt:first-child{margin-top:0}
+  footer{margin-top:52px;padding:28px 0 40px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);text-align:center;line-height:1.9}
+  @media(max-width:900px){.arch{grid-template-columns:1fr}.alink{transform:rotate(90deg);padding:8px 0}.tl,.metrics,.risks,.notes,.toc,.kv,.grid2{grid-template-columns:1fr}h1{font-size:29px}}
+</style>
+</head>
+<body>
+<header><div class="glow"></div><div class="wrap">
+  <div class="eyebrow">POC 方向 06 · 工程技术方案 · v2 细化版</div>
+  <h1>现场副驾<span class="en">Field Copilot</span></h1>
+  <p class="lead">工程师两只手都插在洗衣机里，眼睛盯着主板上那颗烧黑的电容——<b>手机还在口袋里</b>。Galaxy Glasses 看着他的视野，Gemini 在耳中一句一步地带他修完；等他擦干手，工单、配件码、照片组已经写好了。<br>本文档细化到<b>接口、会话生命周期、状态机、数据契约与失败矩阵</b>，可直接据此排期开发。</p>
+  <div class="chips">
+    <div class="chip">载体 <b>Galaxy Glasses + S26 + Watch9</b></div>
+    <div class="chip">平台 <b>Android XR（audio glasses）</b></div>
+    <div class="chip">核心 <b>Gemini Live WS 会话</b></div>
+    <div class="chip">周期 <b>4 周</b> · 2.5 人月</div>
+    <div class="chip">版本 <b>v2 · 2026-10-21</b></div>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="sec-head"><span class="sec-no">00</span><h2>目录</h2></div>
+  <div class="toc">
+    <a href="#s01"><b>01</b>概念与主场景</a>
+    <a href="#s02"><b>02</b>事实基线与硬约束</a>
+    <a href="#s03"><b>03</b>系统架构（组件级）</a>
+    <a href="#s04"><b>04</b>关键接口与代码契约</a>
+    <a href="#s05"><b>05</b>会话生命周期管理</a>
+    <a href="#s06"><b>06</b>无屏交互语法</a>
+    <a href="#s07"><b>07</b>取景与视觉子系统</a>
+    <a href="#s08"><b>08</b>知识与 RAG 子系统</a>
+    <a href="#s09"><b>09</b>安全闸（规则引擎）</a>
+    <a href="#s10"><b>10</b>数据契约</a>
+    <a href="#s11"><b>11</b>延迟预算与成本</a>
+    <a href="#s12"><b>12</b>失败处理矩阵</a>
+    <a href="#s13"><b>13</b>隐私合规与测试</a>
+    <a href="#s14"><b>14</b>计划·指标·风险</a>
+    <a href="#s15"><b>15</b>架构决策记录（ADR）</a>
+  </div>
+</section>
+
+<section id="s01">
+  <div class="sec-head"><span class="sec-no">01</span><h2>概念与主场景</h2></div>
+  <div class="card">
+    <p class="story">上午十点，售后工程师老陈到客户家修一台不制冷的 AI 神冰箱。冰箱在厨房死角，光线差、空间窄，两只手要拿万用表和螺丝刀。<b>他只需要说话：</b>「看一眼前面板」——眼镜自动对焦拍下故障码面板，耳中回应：<b>「E4，启动电容异常。先断电，右侧检修板两颗十字螺丝。」</b>他拆开、说「好了」，下一步才继续。遇到不认识的板子，他说「这个我没见过」，AI 不硬猜，而是<b>要求他重拍</b>：「往左一点，拍主板丝印。」识别后提示：<span class="hl">这块不是原厂板，上次被第三方改过</span>——<b>但这句话只在手机上写进备注，不在客户面前播报</b>（见 06 节社交规则）。四十分钟后工单草稿已完成，他改两个字提交，全程手机没出过口袋。</p>
+    <p class="alt">备选场景（同一链路可复用）：① 门店导购——看着顾客旧机型，耳中给换机话术与以旧换新报价；② 物业/保险查勘——第一视角取证 + 现场生成查勘记录；③ C 端延展——自己装家具、修水管的「家庭修东西教练」（去掉工单闭环）。</p>
+  </div>
+</section>
+
+<section id="s02">
+  <div class="sec-head"><span class="sec-no">02</span><h2>事实基线与硬约束</h2><span class="sub">本节是全部技术选型的依据，任何与本节冲突的设计都必须先改本节</span></div>
+  <div class="card">
+    <h3 class="bt">2.1 硬件基线（Galaxy Glasses，代号 Jinju）</h3>
+    <table>
+      <tr><th>项</th><th>事实</th><th>对方案的影响</th></tr>
+      <tr><td><b>形态</b></td><td>音频形态，<b>无屏、无波导、无 HUD</b>；2026-07-22 Galaxy Unpacked 发布，秋季分市场上市；2027 年预计推显示版</td><td>一切输出走语音；结构化信息交给手机（见 ADR-05）</td></tr>
+      <tr><td><b>算力</b></td><td>骁龙 AR1 Gen1，<b>不跑推理</b>；重推理在配对手机或云端；需 One UI 9+ 的 Galaxy S/Z 配对</td><td>眼镜只是传感器 + 喇叭；手机端做编解码与网络</td></tr>
+      <tr><td><b>相机</b></td><td>12MP 索尼 IMX681，<b>支持自动对焦</b>；视频口径 FHD / 3K 30fps 说法不一</td><td>自动对焦是近距离拍丝印、故障码的关键优势，按「拍帧」用而非录像</td></tr>
+      <tr><td><b>音频</b></td><td>定向扬声器 + 麦克风阵列（规格表口径 4 麦，部分资料写双麦，以实测为准）</td><td>取音走 projected context 多麦，可用降噪与佩戴者语音分离（见 2.2）</td></tr>
+      <tr><td><b>续航</b></td><td>155mAh，整机约 9h；充电盒可再补约 7 次</td><td>≈ 一个班次；「不推流」首先是功耗策略</td></tr>
+      <tr><td><b>重量/价格</b></td><td>约 41–50g（发布会口径约 50g）；$379–499 为媒体口径，官方未公布</td><td>4 小时佩戴可接受；采购按 ≤$500/台估算</td></tr>
+      <tr><td><b>隐私硬件</b></td><td>拍摄时 LED 指示灯亮起；镜腿触控 + 专用拍摄键</td><td>合规设计的地基：口头告知 + 灯 + 手动触发</td></tr>
+    </table>
+
+    <h3 class="bt">2.2 平台能力基线（Android XR SDK，Developer Preview 4）</h3>
+    <table>
+      <tr><th>能力</th><th>真实接口 / 限制</th><th>就绪度</th></tr>
+      <tr><td><b>手机承载 + 投影</b></td><td><code>Jetpack Projected</code>：App 跑在配对手机上，投影到眼镜；业务逻辑与鉴权留在手机侧</td><td><span class="wip">DP4 预览</span></td></tr>
+      <tr><td><b>佩戴态</b></td><td><code>ProjectedContext.isProjectedDeviceConnected()</code> → <code>createProjectedDeviceContext()</code> → <code>XrDevice.getCurrentDevice()</code> → <code>getLifecycle().currentStateFlow</code>；STARTED=佩戴、CREATED=连接但未戴、DESTROYED=断开</td><td><span class="wip">DP4 预览</span></td></tr>
+      <tr><td><b>取音方式</b></td><td>projected context + <code>AudioRecord</code>：可拿<b>多麦、XR 空间化、降噪、佩戴者语音分离</b>，且在多设备环境下仍保有录音权；备选蓝牙 HFP 只给单麦</td><td><span class="wip">DP4 预览</span></td></tr>
+      <tr><td><b>取图方式</b></td><td>projected context + <code>CameraManager</code>；权限需<b>针对投影设备</b>单独申请（手机侧已授予的 RECORD_AUDIO 不足以取眼镜麦克风）</td><td><span class="wip">DP4 预览</span></td></tr>
+      <tr><td><b>无真机测试</b></td><td><code>ProjectedTestRule</code>（<code>androidx.xr.projected:projected-testing:1.0.0-alpha07</code>）自动建连投影设备，CI 可跑</td><td><span class="wip">alpha07</span></td></tr>
+      <tr><td><b>显示版 UI 库</b></td><td><code>Jetpack Compose Glimmer</code> 仅适用显示眼镜，<b>本代音频眼镜用不上</b></td><td><span class="no">不适用</span></td></tr>
+    </table>
+
+    <h3 class="bt">2.3 模型能力基线（Gemini Live API）——本节是架构的真正分水岭</h3>
+    <div class="kv">
+      <div><span>会话上下文窗口</span><b>128k tokens</b></div>
+      <div><span>纯音频会话时长</span><b>约 15 分钟</b></div>
+      <div><span>音频 + 视频会话时长</span><b>约 2 分钟</b></div>
+      <div><span>单条连接时长</span><b>约 10 分钟</b></div>
+      <div><span>断开前通知（GoAway）</span><b>约提前 60 秒</b></div>
+      <div><span>会话恢复令牌有效期</span><b>2 小时</b></div>
+      <div><span>视频输入帧率</span><b>1 FPS（建议 768×768）</b></div>
+      <div><span>音频出入格式</span><b>16kHz PCM 入 / 24kHz PCM 出</b></div>
+      <div><span>图片单次上限</span><b>3000 张 / 单文件 7MB</b></div>
+      <div><span>结构化 JSON 输出</span><b>不支持</b></div>
+      <div><span>可用工具</span><b>function calling / Search / Maps</b></div>
+      <div><span>打断（barge-in）</span><b>服务端 VAD 自动处理</b></div>
+    </div>
+    <div class="callout"><b>三条硬约束直接否决了“把摄像头一直开着”：</b>① 音视频混合会话只有约 2 分钟上限，撑不住 40 分钟工单，且 1FPS 对快速手部动作本就无用；② 连续推流会同时打穿 155mAh 电池与室内上行带宽；③ 客户家中持续录像的合规风险不可接受。因此本方案的核心决策是<b>「按需拍关键帧，不推流」</b>（ADR-01）。</div>
+    <div class="callout info"><b>另一条容易踩空的事实：</b>Live API <b>不支持结构化输出</b>，也不能调 countTokens。所以工单结构不能靠“让模型输出 JSON”，必须通过 <b>function calling 的 arguments（带 schema）</b>承载，或在会话结束时交给一次在线 Flash 调用生成（ADR-03）。</div>
+    <p class="src">来源（2026-10-21 核实）：Samsung Unpacked 2026-07-22 发布资料与多家媒体规格报道；Android Developers「Jetpack XR SDK · 眼镜可用性 / 投影上下文」文档与 DP4 发布说明；Firebase AI Logic「Live API limits and specs / sessions」文档。版本会变，实施前需复核一次。</p>
+  </div>
+</section>
+
+<section id="s03">
+  <div class="sec-head"><span class="sec-no">03</span><h2>系统架构（组件级）</h2></div>
+  <div class="arch">
+    <div class="acol"><h4>眼镜（传感器外设）</h4>
+      <div class="abox">CameraManager<small>按需抓帧 · 自动对焦</small></div>
+      <div class="abox">AudioRecord（多麦）<small>16kHz PCM · 降噪 · 佩戴者分离</small></div>
+      <div class="abox">扬声器 + LED + 镜腿触控<small>唯一的输出与反馈通道</small></div>
+    </div>
+    <div class="alink">蓝牙 →</div>
+    <div class="acol"><h4>手机 App（算力与网关）</h4>
+      <div class="acore"><b>FieldCopilotService</b><small>前台服务 · 会话状态机</small></div>
+      <div class="acore"><b>FramePipeline</b><small>1024px · JPEG q80 · 模糊/反光检测</small></div>
+      <div class="acore"><b>LiveGateway</b><small>WSS 客户端 · 重连与恢复</small></div>
+      <div class="acore"><b>Earcon &amp; 播报队列</b><small>耳标音 + 短句路由</small></div>
+      <div class="acore"><b>佩戴态监听</b><small>ProjectedContext → 采集闸门</small></div>
+    </div>
+    <div class="alink">WSS →</div>
+    <div class="acol"><h4>后端（控制面与知识面）</h4>
+      <div class="abox">Live Proxy（Cloud Run）<small>密钥托管 · 计费隔离 · 审计 · App Check</small></div>
+      <div class="abox">知识检索 RAG<small>手册 / 工单 / 配件图 · 带出处</small></div>
+      <div class="abox">安全闸规则引擎<small>危险步骤分级 + 双确认</small></div>
+      <div class="abox">工单适配器<small>CRM 字段映射 · 幂等提交</small></div>
+    </div>
+  </div>
+  <div class="callout good" style="margin-top:16px"><b>为什么必须有后端代理：</b>Live API 的密钥生命周期太长，绝不能下发到设备；企业场景还需要集中做鉴权、计费隔离、日志审计与滥用拦截。代价是同区域一跳，延迟增加约 20–40ms，可接受。</div>
+</section>
+
+<section id="s04">
+  <div class="sec-head"><span class="sec-no">04</span><h2>关键接口与代码契约</h2><span class="sub">以下为实施骨架，字段名以官方文档为准</span></div>
+  <div class="card">
+    <h3 class="bt">4.1 佩戴态闸门：未佩戴即停采集</h3>
+    <div class="code"><span class="c">// 手机侧常驻服务中，把"能不能采集"变成一条 Flow</span>
+ProjectedContext.isProjectedDeviceConnected(context, coroutineContext)
+  .flatMapLatest { connected -&gt;
+    if (!connected) return@flatMapLatest flowOf(Lifecycle.State.DESTROYED)
+    val pc = try {
+      ProjectedContext.createProjectedDeviceContext(context)
+    } catch (e: IllegalStateException) {
+      return@flatMapLatest flowOf(Lifecycle.State.DESTROYED)  <span class="c">// 上下文随断开失效，须重建</span>
+    }
+    XrDevice.getCurrentDevice(pc).getLifecycle().currentStateFlow
+  }
+  .collect { state -&gt;
+    when (state) {
+      Lifecycle.State.STARTED   -&gt; gate.open()     <span class="c">// 已佩戴：允许唤醒词与相机</span>
+      Lifecycle.State.CREATED   -&gt; gate.close()    <span class="c">// 未佩戴：释放相机流、停唤醒词</span>
+      Lifecycle.State.DESTROYED -&gt; session.end()   <span class="c">// 断开：结束会话并落盘草稿</span>
+    }
+  }</div>
+    <p class="src">注意：每次重连会产生新的 deviceId，旧 ProjectedContext 必须丢弃重建——这是最常见的崩溃源。</p>
+
+    <h3 class="bt">4.2 Live 会话建立参数（示意）</h3>
+    <div class="code">{
+  "model": "gemini-3.1-flash-live-preview",        <span class="c">// 以当期可用 Live 模型为准</span>
+  "responseModalities": ["AUDIO"],
+  "inputAudioTranscription":  {},
+  "outputAudioTranscription": {},
+  "systemInstruction": "<span class="c">…见 4.4 指令骨架…</span>",
+  "tools": [{ "functionDeclarations": [ <span class="c">…见 4.3…</span> ] }],
+  "contextWindowCompression": { "slidingWindow": { "targetTokens": 32000 } },
+  "sessionResumption": { "transparent": true },
+  "speechConfig": { "voiceConfig": { "prebuiltVoiceConfig": { "voiceName": "…" } } }
+}</div>
+    <ul class="tight" style="margin-top:10px">
+      <li><b>必须开压缩</b>：不开压缩 15 分钟就到顶，一次上门要横跨 4 个连接；开启后上下文自动滚动摘要，会话可长期维系。</li>
+      <li><b>必须开恢复</b>：10 分钟连接上限 + 室内弱网，重连是常态而非异常；恢复令牌 2 小时有效，足够覆盖一个工单。</li>
+      <li><b>音色要选低刺激型</b>：工程师一天听几百句，避免高亢亲和型音色造成疲劳，语速略快于默认。</li>
+    </ul>
+
+    <h3 class="bt">4.3 五个工具（function calling）——同时是结构化数据的承载方式</h3>
+    <table>
+      <tr><th>工具</th><th>入参</th><th>返回</th><th>用途与约束</th></tr>
+      <tr><td><b>lookup_procedure</b></td><td>model, faultCode, symptom</td><td>steps[] + citation{手册页/工单号} + riskLevel</td><td>只返回库内条目；无命中返回 empty，禁止自造步骤</td></tr>
+      <tr><td><b>lookup_parts</b></td><td>model, partHint, visualFeatures</td><td>partCode, name, stock</td><td>配件码必须回真实主数据；模糊时给 3 个候选而不是猜一个</td></tr>
+      <tr><td><b>fetch_similar_cases</b></td><td>model, symptom, topK≤3</td><td>caseId, resolution, date</td><td>给“别人怎么修的”，用于提高置信度</td></tr>
+      <tr><td><b>draft_field_note</b></td><td>faultCode, diagnosis, parts[], evidenceRefs[]</td><td>draftId</td><td><b>结构化落库的唯一通道</b>（Live 不支持 JSON 输出）</td></tr>
+      <tr><td><b>escalate_to_expert</b></td><td>reason, urgency, context</td><td>ticketId</td><td>低置信 / 高风险 / 非原厂件时主动升级</td></tr>
+    </table>
+    <div class="callout"><b>工程注意：</b>纯语音通道的 function calling 准确率低于文本通道，这是已知特性。对策是<b>“口语给人、结构给文本”</b>——参数由模型填，但校验与追问一律走文本回灌，避免把长配件名念错导致带错件。</div>
+
+    <h3 class="bt">4.4 system instruction 骨架（要点，非全文）</h3>
+    <div class="code"><span class="c">角色</span>   你是家电维修现场助手，服务对象是持证工程师，不是终端用户。
+<span class="c">节奏</span>   一次只给一个动作，每句不超过 15 个字；等他说"好了"再给下一步。
+<span class="c">不确定</span> 看不清就说看不清，并给一条取景指令（靠近/换角度/拍丝印），禁止猜测。
+<span class="c">依据</span>   任何维修步骤必须来自 lookup_procedure 的返回；没有出处就不说。
+<span class="c">禁区</span>   带电作业、制冷剂回收、燃气部件：只播报预置安全规程，并要求手表确认。
+<span class="c">社交</span>   涉及第三方改装、客户责任、费用判断的结论，不入耳播报，只写 draft_field_note。
+<span class="c">称呼</span>   不用"您好/亲"等客服语；直述，像老师傅在旁边说话。</div>
+  </div>
+</section>
+
+<section id="s05">
+  <div class="sec-head"><span class="sec-no">05</span><h2>会话生命周期管理</h2><span class="sub">最容易翻车、也最能体现工程深度的一节</span></div>
+  <div class="card">
+    <h3 class="bt">5.1 状态机</h3>
+    <div class="code">IDLE ──唤醒词/镜腿长按──▶ ARMED ──"看一眼"──▶ CAPTURING ──帧就绪──▶ THINKING
+  ▲                            │                                        │
+  │                        (摘下/断开)                                   ▼
+  │                            │                                     SPEAKING
+  │                            ▼                                        │
+  └──── DESTROYED ◀──── PAUSED ◀────────────────────────────────────  AWAIT_ACK
+                                                                        │
+                          ┌──────────"好了"──────────┬─────────"重拍"────┘
+                          ▼                          ▼
+                    下一步（THINKING）            CAPTURING
+                          │
+               低置信 / 高风险 ──▶ ESCALATE ──▶ WRAP_UP ──▶ 工单草稿</div>
+    <ul class="tight" style="margin-top:12px">
+      <li><b>ARMED 是常态位</b>：只在 ARMED 接受指令；SPEAKING 时靠服务端 VAD 支持打断，但打断后必须回到 AWAIT_ACK 而不是直接执行新任务（防误触发）。</li>
+      <li><b>PAUSED 不是 IDLE</b>：摘下眼镜是暂停而非结束，回来用恢复令牌续上，避免“摘一下就得重讲”。</li>
+      <li><b>WRAP_UP 幂等</b>：工单草稿按 draftId 幂等提交，弱网重试不产生重复工单。</li>
+    </ul>
+
+    <h3 class="bt">5.2 40 分钟工单如何跨过 10 分钟连接上限</h3>
+    <table>
+      <tr><th>触发</th><th>系统动作</th><th>用户感知</th></tr>
+      <tr><td>连接接近 10 分钟（GoAway，提前约 60 秒）</td><td>预约重连：在模型说完一句后立即用恢复令牌重建，注入会话摘要 + 最近 3 轮</td><td>一声极短「嘀」，其余无感</td></tr>
+      <tr><td>室内 Wi-Fi 抖动断连</td><td>指数退避重连（0.5/1/2/4s，上限 4 次），失败转蜂窝；仍失败降级离线</td><td>「网络不稳，先查本地手册」</td></tr>
+      <tr><td>上下文逼近 128k</td><td>滑动窗口压缩自动生效；后端保留完整会话日志供追溯</td><td>无感（长工单后期追问细节可能需重述一次）</td></tr>
+      <tr><td>摘下超过 5 分钟</td><td>会话挂起并落盘；再戴上提示是否继续</td><td>「要继续刚才那台冰箱吗」</td></tr>
+    </table>
+    <div class="callout"><b>实测前必须验证的一件事：</b>重连后的“语义连续性”。压缩 + 恢复能保住上下文，但模型对“正在做第 3 步”这种过程状态的记忆会衰减。对策是把过程状态<b>外置</b>：手机侧维护 <code>currentStepIndex</code>，每次重连时以一条文本指令注入（“当前进行到第 3 步：拆检修板”），不依赖模型自己记。</div>
+  </div>
+</section>
+
+<section id="s06">
+  <div class="sec-head"><span class="sec-no">06</span><h2>无屏交互语法</h2><span class="sub">没有屏幕，就没有“请看提示”</span></div>
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <h3 class="bt">6.1 播报规范</h3>
+        <ul class="tight">
+          <li>一句一动作，<b>≤15 字</b>；不用编号列表、不念长型号（改说“那个白色小方块”，配件码进手机）</li>
+          <li>先给结论再给动作：「E4，启动电容。先断电。」</li>
+          <li>禁止客服语（“您好 / 亲 / 建议您”）；语气对齐老师傅</li>
+          <li>危险步骤前置一个低音警示音，播完必须等确认</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="bt">6.2 耳标音（Earcon）——替代视觉反馈</h3>
+        <ul class="tight">
+          <li>「咔」单响 = 已拍下（对应快门与 LED）</li>
+          <li>双短音 = 正在查手册</li>
+          <li>低音下滑 = 看不清，需要重拍</li>
+          <li>三连上行 = 工单已保存</li>
+          <li>单长音 = 需要手表手势确认（安全步骤）</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="bt">6.3 语音指令表（固定 8 个词）</h3>
+    <table>
+      <tr><th>指令</th><th>语义</th><th>为什么不做开放意图</th></tr>
+      <tr><td>看一眼 / 拍照</td><td>抓帧并送理解</td><td rowspan="8">现场噪声、方言、客户插话会让开放式意图识别不稳。固定词表把“识别错误”的代价压到最低，并可用端侧关键词匹配兜底；复杂表达交给模型的自然语言能力吸收，不要求用户背命令。</td></tr>
+      <tr><td>好了 / 下一步</td><td>确认当前步骤完成</td></tr>
+      <tr><td>重拍</td><td>丢弃当前帧，重新取景</td></tr>
+      <tr><td>再说一遍</td><td>重播上一句</td></tr>
+      <tr><td>停</td><td>立即停止播报</td></tr>
+      <tr><td>记一下</td><td>写一条现场备注（含时间戳）</td></tr>
+      <tr><td>问专家</td><td>升级远程支持</td></tr>
+      <tr><td>收工</td><td>生成工单草稿并结束</td></tr>
+    </table>
+
+    <div class="callout"><b>最重要的一条产品规则（社交安全）：</b>客户就站在旁边。凡是涉及“这块板被人动过”“这个故障是使用不当造成”“这次要收费”的结论，<b>一律不在耳中播报</b>，只写进手机工单备注。AI 在客户面前说错一句话，损失的不是准确率，是工程师的面子和这单的信任。</div>
+    <div class="callout info"><b>另一个必须先解决的现实问题：客户说话会不会被当成指令？</b>会。所以取音必须用 projected context 的<b>佩戴者语音分离</b>能力，把非佩戴者语音从指令通道剥离（仍保留在环境音中用于上下文判断）；再加固定词表 + 唤醒词双门控，误触发率可压到很低。这也正是我们不用蓝牙 HFP 单麦通道的原因（ADR-06）。</div>
+  </div>
+</section>
+
+<section id="s07">
+  <div class="sec-head"><span class="sec-no">07</span><h2>取景与视觉子系统</h2></div>
+  <div class="card">
+    <div class="steps">
+      <div class="step"><div class="st">触发抓帧</div><div class="sd">语音「看一眼」或镜腿短按。自动对焦完成后抓单帧（12MP），LED 同步亮、耳标音「咔」——三者共同构成“已拍摄”的确证。</div></div>
+      <div class="step"><div class="st">预处理与质量门</div><div class="sd">长边缩放至 <code>1024px</code>（Live 建议输入 768×768，更大只增 token 不增准确率）；JPEG q80；本地做三项检测：<b>拉普拉斯方差</b>判模糊、<b>高光占比</b>判反光、<b>主体占比</b>判是否对准。任一不过关即不进模型，直接播报取景指令。</div></div>
+      <div class="step"><div class="st">上传与理解</div><div class="sd">关键帧与本轮语音在同一轮内送入会话，让模型同时看到画面与问题；不使用 1FPS 视频流。</div></div>
+      <div class="step"><div class="st">置信度分流</div><div class="sd">提示词要求模型附带 confidence：<code>≥0.8</code> 直接给步骤；<code>0.5–0.8</code> 给结论但要求二次确认；<code>&lt;0.5</code> 不给结论，只给取景指令或升级专家。</div></div>
+      <div class="step"><div class="st">重拍闭包</div><div class="sd">最多连续 3 次重拍；仍失败则强制升级远程专家，避免把工程师困在原地打转——这是现场体验的底线。</div></div>
+      <div class="step"><div class="st">多帧投票（仅关键判定）</div><div class="sd">故障码、丝印、接线位置三类高风险识别，要求连拍 2 帧结果一致才给结论；不一致即视为低置信。</div></div>
+    </div>
+    <div class="callout"><b>为什么“拍帧”在准确率上反而优于“推流”：</b>1FPS 视频流等于把一张手抖的糊图反复喂给模型；按需抓帧则可以让工程师停下来、对准、等对焦完成——人的配合把图像质量拉上去了。这是无屏设备的隐藏优势。</div>
+  </div>
+</section>
+
+<section id="s08">
+  <div class="sec-head"><span class="sec-no">08</span><h2>知识与 RAG 子系统</h2></div>
+  <div class="card">
+    <table>
+      <tr><th>环节</th><th>做法</th><th>关键约束</th></tr>
+      <tr><td><b>语料</b></td><td>维修手册（按机型）、历史工单（近 2 年、结案且评价好）、配件图与爆炸图、安全规程</td><td>手册需先做版权/授权确认；工单需脱敏（去姓名电话地址）</td></tr>
+      <tr><td><b>切分</b></td><td><b>按“步骤”切</b>而不是按字数切：一个可执行步骤 = 一个 chunk；元数据保留机型/故障码/章节号</td><td>切分粒度错了，RAG 只会返回“一段看起来相关的长文”，无法变成一句听得懂的指令</td></tr>
+      <tr><td><b>检索</b></td><td>混合检索：故障码/型号走关键词精确匹配，症状描述走向量；结果 rerank 取 top-3</td><td>故障码必须精确命中，不能被向量相似度带偏</td></tr>
+      <tr><td><b>出处强制</b></td><td>每条步骤携带 <code>citation{docId, page, section}</code>；无 citation 的条目不进播报</td><td>这是幻觉的第一道闸</td></tr>
+      <tr><td><b>拒答策略</b></td><td>无命中时固定话术：「手册里没这条，我帮你叫专家」+ 自动升级</td><td>宁可承认不知道，也不能给一条“听起来对”的步骤</td></tr>
+      <tr><td><b>离线包</b></td><td>3 个主力机型的常见故障码表 + 安全规程，打包为本地 SQLite（约 20–40MB）</td><td>室内弱网、地下车库必备；离线只做检索不做生成</td></tr>
+      <tr><td><b>更新</b></td><td>知识库每周增量发布；手机端离线包按版本号静默更新</td><td>新机型上市必须能在一周内进库</td></tr>
+    </table>
+    <div class="callout good"><b>这套设计的副产品：</b>每次“无命中 → 升级专家 → 专家解决”的过程，就是一条高质量的新知识。四周内预计积累 20–30 条真实缺口，这本身就是给业务方最有力的证据——不是“AI 很聪明”，而是<b>“AI 把知识缺口暴露出来了”</b>。</div>
+  </div>
+</section>
+
+<section id="s09">
+  <div class="sec-head"><span class="sec-no">09</span><h2>安全闸（规则引擎，不交给模型）</h2></div>
+  <div class="card">
+    <table>
+      <tr><th>等级</th><th>判定依据</th><th>系统行为</th></tr>
+      <tr><td><b>L0 普通</b></td><td>断电状态下的拆装、检测、清洁</td><td>正常语音指引</td></tr>
+      <tr><td><b>L1 需提示</b></td><td>涉及水路、玻璃件、重物搬运</td><td>播报前加一句风险提示，无需确认</td></tr>
+      <tr><td><b>L2 需双确认</b></td><td>带电检测、制冷剂回收、燃气部件、高压电容</td><td><b>只播报预置规程原文</b>（不由模型改写）+ 单长音 + Watch9 手势确认后才继续</td></tr>
+      <tr><td><b>L3 禁止引导</b></td><td>超出持证范围（如制冷系统焊接）</td><td>明确拒绝并给出升级路径，不做任何步骤性描述</td></tr>
+    </table>
+    <div class="callout"><b>实现要点：</b>L2/L3 判定在<b>规则引擎</b>内完成——输入是机型号、部件码、命中步骤的标签，输出是等级。模型不参与这一步，也不能通过改写措辞绕过。审计日志记录每次 L2 确认的时间、操作人、确认来源，用于事后追溯。</div>
+  </div>
+</section>
+
+<section id="s10">
+  <div class="sec-head"><span class="sec-no">10</span><h2>数据契约</h2><span class="sub">四张核心结构，前后端与工单系统按此对齐</span></div>
+  <div class="card">
+    <h3 class="bt">10.1 EvidenceFrame（证据帧）</h3>
+    <div class="code">{
+  "frameId": "f_20261021_104312_003",
+  "workOrderId": "WO-8823117",
+  "capturedAt": "2026-10-21T10:43:12+08:00",
+  "trigger": "voice | button",
+  "quality": { "blurVar": 182.4, "highlightRatio": 0.06, "subjectRatio": 0.41 },
+  "modelGuess": { "faultCode": "E4", "confidence": 0.87, "citedDoc": "SM-RF600/p.112" },
+  "stored": "knox://wo-8823117/frames/f_...003.jpg",
+  "retention": "follow_workorder"
+}</div>
+
+    <h3 class="bt">10.2 ProcedureStep（步骤）</h3>
+    <div class="code">{
+  "stepIndex": 3,
+  "action": "拆下右侧检修板两颗十字螺丝",
+  "spoken": "先断电，右侧检修板两颗十字螺丝。",
+  "riskLevel": "L1",
+  "citation": { "docId": "SM-RF600", "page": 112, "section": "3.2 检修板拆装" },
+  "requiresAck": true,
+  "fallbackIfStuck": "看检修板左下方卡扣位置"
+}</div>
+
+    <h3 class="bt">10.3 WorkOrderDraft（工单草稿）</h3>
+    <div class="code">{
+  "draftId": "d_8823117_v1",
+  "model": "RF6000M",
+  "faultCode": "E4",
+  "diagnosis": "压缩机启动电容失效（第三方改装主板，已记录）",
+  "parts": [{ "code": "DA34-00011A", "qty": 1, "stock": 12 }],
+  "evidenceRefs": ["f_...003", "f_...007", "f_...011"],
+  "stepsExecuted": 7,
+  "escalated": false,
+  "customerFacingNote": "已更换启动电容，测试制冷正常。",
+  "internalNote": "非原厂主板，上次第三方维修痕迹，建议跟进。",
+  "submitIdempotencyKey": "d_8823117_v1"
+}</div>
+
+    <h3 class="bt">10.4 SessionTrace（会话追溯，仅后端）</h3>
+    <div class="code">{ "sessionId": "s_...", "reconnects": 3, "goAwayHandled": 3,
+  "audioInSec": 2140, "audioOutSec": 690, "frames": 9,
+  "lowConfidenceCount": 2, "reframes": 3, "escalations": 0,
+  "safetyConfirmations": [{ "step": 3, "via": "watch_gesture", "at": "10:47:02" }] }</div>
+  </div>
+</section>
+
+<section id="s11">
+  <div class="sec-head"><span class="sec-no">11</span><h2>延迟预算与成本模型</h2></div>
+  <div class="card">
+    <h3 class="bt">11.1 从“说完”到“听见第一句”</h3>
+    <table>
+      <tr><th>阶段</th><th>P50</th><th>P90</th><th>说明</th></tr>
+      <tr><td>唤醒判定（端侧）</td><td>250ms</td><td>400ms</td><td>关键词 + 佩戴态双门控</td></tr>
+      <tr><td>自动对焦 + 抓帧</td><td>300ms</td><td>650ms</td><td>IMX681 AF；暗光会拉长</td></tr>
+      <tr><td>预处理 + 上传</td><td>250ms</td><td>900ms</td><td>1024px JPEG 约 200–400KB</td></tr>
+      <tr><td>Live 首 token</td><td>500ms</td><td>1200ms</td><td>含视觉编码</td></tr>
+      <tr><td>音频起播缓冲</td><td>250ms</td><td>400ms</td><td>24kHz PCM，200ms 缓冲</td></tr>
+      <tr><td><b>合计（不含工具调用）</b></td><td><b>1.55s</b></td><td><b>3.5s</b></td><td>目标：P90 ≤ 4s</td></tr>
+      <tr><td>工具调用额外开销</td><td>+700ms</td><td>+1600ms</td><td>用过渡语遮盖（“我查一下手册”）</td></tr>
+    </table>
+    <div class="callout info"><b>为什么这个延迟可以接受：</b>它不是对话场景。工程师说完“看一眼”本来就要转身、伸手、拿工具；1.5–3.5 秒的首句正好落在他手刚放好的时刻。反过来，太快会显得抢话。这也意味着<b>没必要为此上更贵的模型</b>。</div>
+
+    <h3 class="bt">11.2 单均成本估算（按第三方公布单价测算，需以实际账单复核）</h3>
+    <div class="kv">
+      <div><span>音频输入（约 40 分钟）</span><b>≈ $0.20</b></div>
+      <div><span>音频输出（约 12 分钟语音）</span><b>≈ $0.22</b></div>
+      <div><span>关键帧（约 9 张）</span><b>≈ $0.02</b></div>
+      <div><span>Flash 摘要 + RAG</span><b>≈ $0.03</b></div>
+      <div><span>单均合计</span><b>≈ $0.47（约 ¥3.4）</b></div>
+      <div><span>单均上门成本参照</span><b>数百元</b></div>
+    </div>
+    <p class="src">结论：模型成本在单均上门成本里可忽略——<b>成本不是这个方案的约束，准确率与硬件供给才是</b>。因此不该在模型上省钱，而该在知识库质量上花钱。</p>
+  </div>
+</section>
+
+<section id="s12">
+  <div class="sec-head"><span class="sec-no">12</span><h2>失败处理矩阵</h2></div>
+  <div class="card" style="padding:10px 18px">
+    <table class="matrix">
+      <tr><th>失败场景</th><th>检测信号</th><th>降级动作</th><th>用户听到的</th></tr>
+      <tr><td>眼镜摘下 / 断开</td><td>lifecycle → CREATED / DESTROYED</td><td>释放相机、停唤醒词；会话挂起落盘</td><td>（静默）重戴后：“要继续吗”</td></tr>
+      <tr><td>连接达 10 分钟上限</td><td>GoAway 消息（提前约 60s）</td><td>说完整句后重连，注入过程状态</td><td>一声「嘀」</td></tr>
+      <tr><td>弱网 / 断网</td><td>WSS 心跳超时</td><td>指数退避 → 转蜂窝 → 离线检索</td><td>「网络不稳，先查本地手册」</td></tr>
+      <tr><td>图像糊 / 反光</td><td>拉普拉斯方差 / 高光占比</td><td>不进模型，直接给取景指令</td><td>「太近了，退后半臂」</td></tr>
+      <tr><td>模型低置信</td><td>confidence &lt; 0.5</td><td>不说结论，重拍或升级</td><td>「看不清丝印，往左一点」</td></tr>
+      <tr><td>RAG 无命中</td><td>top-1 分数低于阈值</td><td>拒答 + 自动升级专家</td><td>「手册没这条，我叫专家」</td></tr>
+      <tr><td>连续 3 次重拍失败</td><td>reframeCount ≥ 3</td><td>强制转远程专家（共享第一视角）</td><td>「我叫人帮你看」</td></tr>
+      <tr><td>模型给出 L2 步骤</td><td>规则引擎判定</td><td>阻断改写，只播预置规程 + 等手势</td><td>（低音警示）「带电，请确认」</td></tr>
+      <tr><td>电量低</td><td>电量 &lt; 15%</td><td>降采样、停非必要上传、提示补电</td><td>「快没电了，午休充十分钟」</td></tr>
+      <tr><td>后台被杀</td><td>前台服务重启</td><td>从草稿恢复未完成工单</td><td>「刚才那单还在，继续吗」</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s13">
+  <div class="sec-head"><span class="sec-no">13</span><h2>隐私合规与测试</h2></div>
+  <div class="card">
+    <h3 class="bt">13.1 数据留存矩阵</h3>
+    <table>
+      <tr><th>数据</th><th>存放</th><th>保留期</th><th>谁能看</th></tr>
+      <tr><td>原始音频流</td><td><b>不留存</b>（仅流经）</td><td>0</td><td>—</td></tr>
+      <tr><td>文字转写</td><td>后端加密存储</td><td>90 天</td><td>质量评估组（脱敏）</td></tr>
+      <tr><td>关键帧照片</td><td>Knox / 企业对象存储</td><td>随工单（一般 1–3 年）</td><td>工单可见范围</td></tr>
+      <tr><td>工单草稿</td><td>CRM</td><td>按企业档案制度</td><td>业务系统权限</td></tr>
+      <tr><td>会话追溯指标</td><td>后端（无原文）</td><td>180 天</td><td>工程与运营</td></tr>
+    </table>
+    <div class="callout"><b>必须提前处理的三个外部事实：</b>① 公开条款下 Gemini 应用活动默认留存 18 个月、人工审核内容最长 3 年——企业方案必须走企业通道并关闭个人账号的活动记录；② 自 2026-11-02 起 Firebase AI Logic 强制 App Check，客户端接入要预留；③ 三星与谷歌尚未单独发布眼镜摄像头的专属数据政策，这属于<b>评审时必须写明的外部不确定性</b>，不是代码能解决的。</div>
+    <div class="callout info"><b>现场合规三件套（写进 SOP，不靠自觉）：</b>进门前一句固定话术告知“设备会拍摄机器部位用于维修记录”；佩戴时 LED 常亮可见；<b>人脸检测命中即丢帧</b>（本地完成，不上传）。</div>
+
+    <h3 class="bt">13.2 测试分层</h3>
+    <table>
+      <tr><th>层</th><th>手段</th><th>覆盖目标</th></tr>
+      <tr><td>单元 / 集成</td><td><code>ProjectedTestRule</code>（无真机）+ 假帧回放（200 张真实现场照片）</td><td>状态机迁移、佩戴态闸门、重连逻辑</td></tr>
+      <tr><td>端到端（模拟）</td><td>Android XR 模拟器 + 录制音频回放</td><td>会话生命周期、GoAway、弱网注入</td></tr>
+      <tr><td>评估集</td><td>3 机型 × 20 故障码 × 3 拍摄条件（正对 / 斜角 / 暗光）= 180 例</td><td>部件 Top-1、故障码 OCR、拒答正确率</td></tr>
+      <tr><td>真机实测</td><td>5 单真实上门 + 5 单对照（同机型老流程）</td><td>一次上门解决率、单均时长、主观可用性</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s14">
+  <div class="sec-head"><span class="sec-no">14</span><h2>计划·指标·风险</h2></div>
+  <div class="tl">
+    <div class="tw"><div class="w">WEEK 1</div><h3>机器与知识</h3><ul><li>申请 Catalyst 预发布机</li><li>ProjectedTestRule 跑通空链路</li><li>3 机型手册按步骤结构化</li><li>180 例评估集拍摄完成</li></ul><div class="exit">出口：无真机也能回放跑通“抓帧→会话→播报”</div></div>
+    <div class="tw"><div class="w">WEEK 2</div><h3>核心链路</h3><ul><li>projected context 取音 / 取图</li><li>Live 会话 + 5 个工具</li><li>质量门 + 重拍闭包</li><li>耳标音体系</li></ul><div class="exit">出口：真机“看一眼→给步骤”P90 ≤ 4s</div></div>
+    <div class="tw"><div class="w">WEEK 3</div><h3>闭环与兜底</h3><ul><li>RAG 带出处 + 拒答</li><li>工单草稿幂等回写</li><li>安全闸 L0–L3</li><li>弱网 / 离线 / 重连</li></ul><div class="exit">出口：断网仍可查本地故障码表</div></div>
+    <div class="tw"><div class="w">WEEK 4</div><h3>真实上门</h3><ul><li>5 单真实工单 + 5 单对照</li><li>缺口清单与知识补齐</li><li>评审现场演示（含专家接管）</li></ul><div class="exit">出口：指标达标 + 20 条知识缺口成册</div></div>
+  </div>
+
+  <div class="metrics" style="margin-top:14px">
+    <div class="mc"><div class="mi">一次上门解决率</div><div class="val">+15pp</div><p>5 单对照同机型常规流程</p></div>
+    <div class="mc"><div class="mi">单均处理时长</div><div class="val">−20%</div><p>诊断与填单两环节同时压缩</p></div>
+    <div class="mc"><div class="mi">步骤正确率</div><div class="val">≥90%</div><p>评估集 180 例，人工判定</p></div>
+    <div class="mc"><div class="mi">指引可用性</div><div class="val">≥4.0<span style="font-size:13px">/5</span></div><p>「听完就知道下一步做什么」</p></div>
+  </div>
+
+  <div class="risks" style="margin-top:12px">
+    <div class="rc"><h3>真机拿不到</h3><p>眼镜秋季分市场上市，SDK 仍是 DP4，接口可能破坏性变更。</p><div class="fix">✓ Catalyst 预发布机 + ProjectedTestRule 模拟 + S26/Buds 过渡形态兜底；SDK 版本锁定并加适配层</div></div>
+    <div class="rc"><h3>客户家中隐私抵触</h3><p>被拍摄感强、易投诉；外部政策尚未明确。</p><div class="fix">✓ 告知话术 + 隐私灯 + 人脸即丢帧 + 只留关键帧 + 原始流不落库</div></div>
+    <div class="rc"><h3>模型给错维修步骤</h3><p>带电作业里这是事故，不是体验问题。</p><div class="fix">✓ RAG 必带出处 + 规则引擎硬闸 + 低置信只说“叫专家”</div></div>
+  </div>
+
+  <h3 class="bt">风险登记册（补充项）</h3>
+  <div class="card" style="padding:8px 16px">
+    <table>
+      <tr><th>风险</th><th>概率</th><th>影响</th><th>缓解 / 预警信号</th></tr>
+      <tr><td>客户插话被误判为指令</td><td>高</td><td>错步、尴尬</td><td>佩戴者语音分离 + 固定词表 + 唤醒词双门控；预警：误触发 &gt;1 次/单</td></tr>
+      <tr><td>重连后语义断层</td><td>中</td><td>重复提问、体验断裂</td><td>过程状态外置注入；预警：出现“我们刚才说到哪”</td></tr>
+      <tr><td>手册授权 / 版权受阻</td><td>中</td><td>知识库缺料</td><td>先用历史工单 + 自建 SOP 起步；预警：法务给不出结论</td></tr>
+      <tr><td>工单系统接口不开放</td><td>中</td><td>闭环做不出来</td><td>W1 就要拿到接口人；兜底为“生成后人工复制”</td></tr>
+      <tr><td>工程师不愿戴</td><td>中</td><td>数据采集失败</td><td>先做“耳中教练”单点价值，不谈考核；预警：首日佩戴 &lt;30 分钟</td></tr>
+    </table>
+  </div>
+
+  <h3 class="bt">待定问题（需业务方拍板）</h3>
+  <div class="card">
+    <ul class="tight">
+      <li>工单系统接口对接人是谁？可写入的字段范围有多大？</li>
+      <li>是否允许在客户家中拍摄设备照片？法务对“告知话术 + LED”的接受度？</li>
+      <li>试点选哪个城市、哪些机型、几个工程师？（建议：1 城 5 人 3 机型）</li>
+      <li>远程专家接管是否纳入本期？（建议不纳入，仅留升级入口）</li>
+      <li>眼镜采购 / 借用渠道与预算（按 ≤$500/台 × 6 台估算）？</li>
+    </ul>
+  </div>
+</section>
+
+<section id="s15">
+  <div class="sec-head"><span class="sec-no">15</span><h2>架构决策记录（ADR）</h2><span class="sub">每条都绑定一个事实依据，便于评审追责</span></div>
+  <div class="adr">
+    <div class="a"><div class="h"><em>ADR-01</em>按需拍关键帧，不做视频推流</div><p>依据：Live API 音视频混合会话仅约 2 分钟、视频输入上限 1FPS；155mAh 电池不支持连续推流；客户家中持续录像合规不可行。代价：丢失连续动作理解，需靠人的配合（停下、对准）。</p></div>
+    <div class="a"><div class="h"><em>ADR-02</em>不客户端直连 Live API，走后端代理</div><p>依据：密钥生命周期过长不可下发；企业需集中鉴权、计费隔离与审计；2026-11-02 起 Firebase AI Logic 强制 App Check。代价：多一跳（约 20–40ms）与一个常驻服务。</p></div>
+    <div class="a"><div class="h"><em>ADR-03</em>结构化数据靠 function calling，不靠模型输出 JSON</div><p>依据：Live API 不支持结构化输出。做法：工具参数带 schema 承载结构；工单正文由一次在线 Flash 调用基于会话摘要生成。代价：多一次模型调用与一层参数校验。</p></div>
+    <div class="a"><div class="h"><em>ADR-04</em>安全闸用规则引擎，模型无权改写</div><p>依据：L2/L3 场景出错不可逆；模型可通过措辞绕过任何提示词约束。代价：需维护一份部件 / 步骤风险标签表。</p></div>
+    <div class="a"><div class="h"><em>ADR-05</em>语音为主、手机为辅</div><p>依据：本代眼镜无屏（显示版 2027 才有）。做法：耳机输出口语指令，手机承载结构化信息（配件码、照片组、工单）。代价：双设备注意力切换，靠“耳标音 + 手机不打扰”缓解。</p></div>
+    <div class="a"><div class="h"><em>ADR-06</em>取音走 projected context，不用蓝牙 HFP</div><p>依据：HFP 只给单麦；projected context 可多麦 + 降噪 + 佩戴者语音分离 + 多设备环境下保持录音权。代价：依赖 DP4 预览 API，权限需针对投影设备单独申请。</p></div>
+    <div class="a"><div class="h"><em>ADR-07</em>不做“手机常亮替代屏幕”</div><p>依据：一旦手机成为主界面，双手占用场景的价值就消失了，方案退化为普通 App。手机只做“事后核对”，不做“事中导航”。</p></div>
+  </div>
+</section>
+
+</div>
+<footer>
+  POC 方向 06 · 现场副驾 Field Copilot · 工程技术方案 v2 · 2026-10-21<br>
+  硬件已发布（2026 秋分市场上市）、Android XR SDK 为 Developer Preview 4、Live 相关能力经 Firebase AI Logic 接入（预览）——清单中已逐项标注就绪度<br>
+  文中极限值（15 分钟 / 2 分钟 / 10 分钟 / 128k）与接口命名来自 2026-10 官方文档，实施前需复核版本
+</footer>
+</body>
+</html>

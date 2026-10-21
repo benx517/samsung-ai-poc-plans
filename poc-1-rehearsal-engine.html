@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POC 方向 1 · 预演引擎 Rehearsal Engine · 工程技术方案 v2</title>
+<style>
+  :root{--bg:#070B14;--card:#0F1526;--card2:#121A2E;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+  --txt:#F2F5FA;--sub:#98A4BC;--faint:#5D6B87;--blue:#5B8CFF;--cyan:#3EE0C4;--orange:#FF9F43;--green:#4ADE80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:"PingFang SC","HarmonyOS Sans SC","MiSans","Microsoft YaHei",-apple-system,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px}
+  header{padding:58px 0 34px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .glow{position:absolute;width:500px;height:500px;border-radius:50%;filter:blur(100px);background:rgba(20,40,160,.28);top:-240px;left:-140px;pointer-events:none}
+  .eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;letter-spacing:.2em;color:var(--cyan);border:1px solid rgba(62,224,196,.35);border-radius:999px;padding:5px 14px;margin-bottom:20px;background:rgba(62,224,196,.06)}
+  h1{font-size:40px;font-weight:800}
+  h1 .en{display:block;font-size:15px;font-weight:600;letter-spacing:.3em;color:var(--faint);margin-top:8px;text-transform:uppercase}
+  .lead{margin-top:16px;font-size:15.5px;color:var(--sub);max-width:790px}
+  .lead b{color:var(--txt)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .chip{font-size:12px;color:#C9D4EA;background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:5px 14px}
+  .chip b{color:var(--blue)}
+  section{padding:40px 0 4px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+  .sec-no{font-size:13px;color:var(--blue);font-weight:700;letter-spacing:.2em}
+  .sec-head h2{font-size:23px;font-weight:800}
+  .sec-head .sub{font-size:11.5px;color:var(--faint)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .story{font-size:14px;color:var(--sub)}
+  .story b{color:var(--txt)}
+  .story .hl{color:var(--cyan);font-weight:600}
+  .alt{margin-top:12px;font-size:12.5px;color:var(--faint);border-left:2px solid var(--line2);padding-left:14px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;color:var(--faint);font-weight:600;letter-spacing:.06em;padding:9px 10px;border-bottom:1px solid var(--line2);font-size:11.5px}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--sub);vertical-align:top}
+  td b{color:var(--txt)}
+  td .ok{color:var(--green);font-size:10.5px;border:1px solid rgba(74,222,128,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .wip{color:var(--orange);font-size:10.5px;border:1px solid rgba(255,159,67,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .no{color:#FF6B6B;font-size:10.5px;border:1px solid rgba(255,107,107,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  .arch{display:grid;grid-template-columns:1fr 36px 1.25fr 36px 1fr;align-items:stretch;gap:0}
+  .acol h4{font-size:11.5px;letter-spacing:.16em;color:var(--faint);margin-bottom:10px}
+  .abox{background:var(--card2);border:1px solid var(--line2);border-radius:11px;padding:9px 12px;font-size:12.5px;margin-bottom:8px}
+  .abox small{display:block;font-size:10.5px;color:var(--faint);line-height:1.5}
+  .acore{background:linear-gradient(180deg,rgba(91,140,255,.1),rgba(62,224,196,.05));border:1px solid rgba(91,140,255,.4);border-radius:11px;padding:9px 12px;margin-bottom:8px}
+  .acore b{font-size:12.5px}.acore small{display:block;font-size:10.5px;color:var(--sub);line-height:1.5}
+  .alink{display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:12px}
+  .steps{counter-reset:s;display:flex;flex-direction:column;gap:11px}
+  .step{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:13px;align-items:start}
+  .step::before{content:counter(s,decimal-leading-zero);width:32px;height:32px;border-radius:9px;background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.4);color:var(--blue);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .step .st{font-size:14px;font-weight:700;margin-bottom:2px}
+  .step .st,.step .sd{grid-column:2}
+  .step .sd{font-size:12.5px;color:var(--sub)}
+  .step .sd code,p code,td code,li code{color:var(--cyan);font-size:11.5px;background:rgba(62,224,196,.08);padding:1px 5px;border-radius:5px;font-family:Consolas,monospace}
+  .notes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .note{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .note .nt{font-size:12.5px;font-weight:700;color:var(--cyan);margin-bottom:5px}
+  .note p{font-size:12px;color:var(--sub)}
+  .tl{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+  .tw{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px}
+  .tw .w{font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--blue)}
+  .tw h3{font-size:14px;margin:5px 0 7px}
+  .tw ul{list-style:none}
+  .tw li{font-size:11.5px;color:var(--sub);padding:2px 0 2px 13px;position:relative}
+  .tw li::before{content:"·";position:absolute;left:2px;color:var(--blue)}
+  .tw .exit{margin-top:8px;font-size:11px;color:var(--green);border-top:1px solid var(--line);padding-top:7px}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .mc{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px}
+  .mc .mi{font-size:10.5px;letter-spacing:.14em;color:var(--faint)}
+  .mc .val{font-size:23px;font-weight:800;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:4px 0}
+  .mc p{font-size:11.5px;color:var(--sub)}
+  .risks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .rc{background:var(--card);border:1px solid rgba(255,159,67,.22);border-radius:15px;padding:18px}
+  .rc h3{font-size:13.5px;margin-bottom:5px}
+  .rc p{font-size:11.5px;color:var(--sub)}
+  .rc .fix{margin-top:8px;font-size:11.5px;color:var(--green)}
+  .toc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .toc a{display:flex;gap:9px;font-size:12px;color:var(--sub);text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+  .toc a b{color:var(--blue);font-weight:700}
+  .code{background:#080D1A;border:1px solid var(--line2);border-radius:11px;padding:13px 15px;font-family:Consolas,"SF Mono",monospace;font-size:11.5px;line-height:1.72;color:#B9C6DE;overflow-x:auto;white-space:pre;margin-top:12px}
+  .code .c{color:var(--faint)}
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;font-size:12.5px}
+  .kv div{padding:7px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px}
+  .kv span{color:var(--faint)}.kv b{color:var(--txt);text-align:right}
+  .callout{border-left:2px solid var(--orange);background:rgba(255,159,67,.06);border-radius:0 11px 11px 0;padding:13px 16px;font-size:12.5px;color:var(--sub);margin-top:12px}
+  .callout b{color:var(--orange)}
+  .callout.good{border-color:var(--green);background:rgba(74,222,128,.06)}
+  .callout.good b{color:var(--green)}
+  .callout.info{border-color:var(--blue);background:rgba(91,140,255,.06)}
+  .callout.info b{color:var(--blue)}
+  .matrix td:first-child{color:var(--txt);font-weight:600;font-size:11.5px}
+  .adr{display:flex;flex-direction:column;gap:9px}
+  .adr .a{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+  .adr .a .h{font-size:13px;font-weight:700;margin-bottom:3px}
+  .adr .a .h em{font-style:normal;font-size:10px;color:var(--blue);border:1px solid rgba(91,140,255,.4);border-radius:5px;padding:1px 6px;margin-right:7px;letter-spacing:.08em}
+  .adr .a p{font-size:12px;color:var(--sub)}
+  ul.tight{list-style:none;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--sub)}
+  ul.tight li{padding-left:13px;position:relative}
+  ul.tight li::before{content:"—";position:absolute;left:0;color:var(--blue)}
+  h3.bt{font-size:14px;margin:22px 0 10px;color:var(--txt)}
+  h3.bt:first-child{margin-top:0}
+  .src{font-size:10.5px;color:var(--faint);margin-top:9px;line-height:1.7}
+  footer{margin-top:52px;padding:28px 0 40px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);text-align:center;line-height:1.9}
+  @media(max-width:900px){.arch{grid-template-columns:1fr}.alink{transform:rotate(90deg);padding:8px 0}.tl,.metrics,.risks,.notes,.toc,.kv{grid-template-columns:1fr}h1{font-size:29px}}
+</style>
+</head>
+<body>
+<header><div class="glow"></div><div class="wrap">
+  <div class="eyebrow">POC 方向 01 · 工程技术方案 · v2 细化版</div>
+  <h1>预演引擎<span class="en">Rehearsal Engine</span></h1>
+  <p class="lead">说一句话，AI 先用<b>世界模型</b>把明天的场景拍给你看：先出 6 张关键帧看板（10 秒内），确认构图后再渲染成 40 秒预演影片；指着某一幕说「风太大」，<b>只重渲那一镜</b>。定稿后由后台智能体把日历、洗烘、购物车、全屋设备一次落位。<br>本文档细化到<b>接口参数、分镜合约、一致性策略、渲染队列、成本模型与失败矩阵</b>——包含对 v1 两处假设的撤回。</p>
+  <div class="chips">
+    <div class="chip">载体 <b>Galaxy S26 Ultra</b>（One UI 9）</div>
+    <div class="chip">生成 <b>gemini-omni-1.1-flash</b></div>
+    <div class="chip">规划 <b>gemini-3.5-flash</b></div>
+    <div class="chip">执行 <b>Spark/MCP + SmartThings</b></div>
+    <div class="chip">周期 <b>4 周</b> · 2.5 人月</div>
+    <div class="chip">版本 <b>v2 · 2026-10-21</b></div>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="sec-head"><span class="sec-no">00</span><h2>目录</h2></div>
+  <div class="toc">
+    <a href="#s01"><b>01</b>概念与主场景</a>
+    <a href="#s02"><b>02</b>事实基线与硬约束</a>
+    <a href="#s03"><b>03</b>系统架构（组件级）</a>
+    <a href="#s04"><b>04</b>分镜合约与生成管线</a>
+    <a href="#s05"><b>05</b>一致性控制四层</a>
+    <a href="#s06"><b>06</b>修改回路（单镜重渲）</a>
+    <a href="#s07"><b>07</b>数据契约</a>
+    <a href="#s08"><b>08</b>延迟预算与成本模型</a>
+    <a href="#s09"><b>09</b>失败处理矩阵</a>
+    <a href="#s10"><b>10</b>隐私与合规</a>
+    <a href="#s11"><b>11</b>计划·指标·风险</a>
+    <a href="#s12"><b>12</b>架构决策记录（ADR）</a>
+  </div>
+</section>
+
+<section id="s01">
+  <div class="sec-head"><span class="sec-no">01</span><h2>概念与主场景</h2><span class="sub">体验的关键不是「生成影片」，而是「不用等影片也能拍板」</span></div>
+  <div class="card">
+    <p class="story">周五 22:14，用户对 S26 Ultra 说：<b>「明天带朵朵去海边露营」</b>。手机先花 9 秒排出<b>六格关键帧看板</b>：装车、路上、抵达营地、搭天幕、风向突变、收尾回程；每格下面挂着真实数据——风力 3→5 级、14:30 退潮、紫外线 8、日落 18:52。第二格天幕是湿的，因为 AI 记得上周淋过雨，顺手把洗烘空气洗预约到凌晨 2 点。用户指着第五格说「风太大，换湾内营地」——<b>只有这一镜重渲</b>，20 秒出 360p 草稿，确认后替换成 720p。一句「就这样」，他按下「生成影片」，手机放到无线充上，<b>约 2 分钟后通知栏弹出 40 秒成片</b>；同一时刻日历、闹钟、购物车、手表提醒、洗烘预约全部落位。</p>
+    <p class="alt">备选场景（同一渲染管线复用）：① 新家软装预演——按真实户型生成四机位漫游；② 旅行行程彩排——把签证/天气/机酒冲突演成「会出问题的那一天」；③ 门店销售——给客户演一遍「你家阳台放这台机器人的样子」。</p>
+    <div class="callout"><b>v1 的两处假设在这里撤回。</b>①Omni 单条只能生成 3–10 秒，扩展链累计上限 40 秒，所以「一段长片」在工程上不存在，必须按<b>分镜片</b>做；②单镜 720p 实际耗时 40 秒–3 分钟，所以「说一句话 30 秒出全片」不成立，交互必须改成<b>先看板、后渲染</b>。</div>
+  </div>
+</section>
+
+<section id="s02">
+  <div class="sec-head"><span class="sec-no">02</span><h2>事实基线与硬约束</h2><span class="sub">本节是全部技术选型的依据；与本节冲突的设计先改本节</span></div>
+  <div class="card">
+    <h3 class="bt">2.1 视频生成基线（Gemini Omni 1.1 Flash）</h3>
+    <table>
+      <tr><th>项</th><th>事实</th><th>对方案的影响</th></tr>
+      <tr><td><b>模型与状态</b></td><td><code>gemini-omni-1.1-flash</code>，2026-08-27 GA；此前 <code>gemini-omni-flash-preview</code> 于 2026-10-22 退役</td><td>不写死 preview 版本号，配置化 model id</td></tr>
+      <tr><td><b>时长</b></td><td>单条 <b>3–10 秒</b>、24fps；可用 <code>extend</code> 按 10 秒步进续接，<b>累计上限 40 秒</b>；上传视频编辑/续接源 ≤10 秒</td><td>40 秒成片 = 6 镜独立生成 + 客户端拼接，不走续接链</td></tr>
+      <tr><td><b>分辨率</b></td><td>360p 草稿 / 720p 默认 / 1080p / 4K；<b>1080p 与 4K 是放大输出</b>，非原生渲染</td><td>评审投屏用 720p 即可；4K 只在静态海报场景用</td></tr>
+      <tr><td><b>比例</b></td><td>仅 <b>16:9</b> 与 <b>9:16</b></td><td>投屏版 / 手机全屏版两条渲染队列，不能混用</td></tr>
+      <tr><td><b>参考输入</b></td><td>最多 <b>10 张参考图</b>（含首帧/尾帧）；最多 3 段 ≤3 秒参考视频（保角色/运动）</td><td>角色一致性靠固定 reference set，而非 prompt 复述</td></tr>
+      <tr><td><b>音频</b></td><td>原生输出含对白/音效/音乐；但<b>不改声音</b>，改声音的编辑受限</td><td>中文旁白不交给模型，走本地 TTS 后配</td></tr>
+      <tr><td><b>文字渲染</b></td><td>官方模型卡明确把「画面内文字准确」列为已知限制</td><td>片内<b>不烧任何文字</b>，时间/地点/风力用原生图层叠加</td></tr>
+      <tr><td><b>调用形态</b></td><td>异步 job + 轮询；<b>不支持 system instruction、不支持 temperature 等采样参数</b>；有状态 Interactions API，<code>store=false</code> 会断掉后续多轮编辑</td><td>约束写进首轮 user prompt；编辑会话必须保留状态</td></tr>
+      <tr><td><b>耗时</b></td><td>8 秒 1080p 约 30 秒–3 分钟；Omni 整体 1–5 分钟；工程上按 <b>6 分钟超时</b>设计</td><td>必须有后台任务 + 推送，不能同步等待</td></tr>
+      <tr><td><b>价格</b></td><td>视频输出 $17.50/百万 token，720p 按 5,792 token/秒 ≈ <b>$0.10/秒</b>；360p 约 1/3 价、快 60%；1080p ≈$0.15/秒；4K ≈$0.30/秒；<b>无免费额度</b></td><td>草稿用 360p；成片才上 720p；成本进配额</td></tr>
+      <tr><td><b>区域限制</b></td><td>上传视频的编辑/续接在 EEA、瑞士、英国不可用；可识别人物的上传/编辑全球不支持</td><td>中国市场不涉及；出境演示需换纯生成路径</td></tr>
+      <tr><td><b>水印</b></td><td>全部输出带 SynthID 隐形水印</td><td>对外传播需标注「AI 生成」，不能声称实拍</td></tr>
+    </table>
+
+    <h3 class="bt">2.2 语言与结构化基线（Gemini 3.5 Flash）</h3>
+    <div class="kv">
+      <div><span>Model ID</span><b>gemini-3.5-flash（2026-05-19 GA）</b></div>
+      <div><span>价格</span><b>$1.50 入 / $9.00 出（每百万 token）</b></div>
+      <div><span>缓存输入</span><b>$0.15 / 百万 token</b></div>
+      <div><span>上下文</span><b>1,048,576 入 / 65,536 出</b></div>
+      <div><span>结构化输出</span><b>支持 JSON Schema</b></div>
+      <div><span>函数调用</span><b>支持 tools / tool_choice</b></div>
+      <div><span>输入模态</span><b>文本 / 图像 / 音频 / 视频 / PDF</b></div>
+      <div><span>输出模态</span><b>仅文本</b></div>
+    </div>
+    <p class="src">分镜脚本、修改指令定位、风险校验全部走它；影片生成不走它。两者职责不能混——这是本方案与 v1 最大的结构差异。</p>
+
+    <h3 class="bt">2.3 生态执行基线（SmartThings / Spark）</h3>
+    <table>
+      <tr><th>项</th><th>事实</th><th>影响</th></tr>
+      <tr><td><b>鉴权</b></td><td>OAuth 2.0 Bearer；PAT 在 2024-12-30 之后签发的<b>只有 24 小时有效期</b></td><td>执行业务必须走服务端 OAuth，令牌不进客户端</td></tr>
+      <tr><td><b>设备写入</b></td><td>命令 <b>12 次/分钟/设备</b>，单次请求最多 10 条命令；读状态同样 12 次/分钟/设备</td><td>「一键落位」要在服务端合并成一次批量命令</td></tr>
+      <tr><td><b>订阅</b></td><td>每个 Installed App 最多 40 条订阅；创建 40 次/15 分钟；单事件 ≤10 KiB</td><td>只订阅用到的 capability，不做全量镜像</td></tr>
+      <tr><td><b>设备规模</b></td><td>单个 Installed App 最多 30 台云连接设备</td><td>种子家庭够用；门店场景需拆分 app 实例</td></tr>
+      <tr><td><b>错误语义</b></td><td>超限 429（带 reset 头）、越硬上限 422</td><td>重试读 <code>X-RateLimit-Reset</code>，指数退避加抖动</td></tr>
+      <tr><td><b>计费</b></td><td>SmartThings API 自 2026 年 10 月起转付费，个人开发者档约 <b>$4.99/月</b>；此前免费期到 2026 年 9 月底</td><td>预算里要列；评审必须知道这不是「免费基础设施」</td></tr>
+      <tr><td><b>Spark Agent</b></td><td>后台智能体 + MCP 跨 App 执行，仍属区域灰度</td><td>首批市场验证；其余市场走三星原生入口 / 直达 Intent 兜底</td></tr>
+    </table>
+
+    <div class="callout"><b>由基线推出的四条硬约束：</b>①成片 = N 个 ≤10 秒分镜片拼接，不存在「一次生成 40 秒」；②交互必须「先看板后渲染」，渲染是后台任务；③片内文字不可信，数据一律 UI 叠层；④修改只能单镜重渲，不能整片重来。</div>
+  </div>
+</section>
+
+<section id="s03">
+  <div class="sec-head"><span class="sec-no">03</span><h2>系统架构（组件级）</h2><span class="sub">端侧只做编排与呈现，全部模型调用经服务端代理</span></div>
+  <div class="arch">
+    <div class="acol"><h4>端侧 · GALAXY S26 ULTRA</h4>
+      <div class="abox">Plan Orchestrator<small>语音意图 · 上下文装配 · 状态机</small></div>
+      <div class="abox">Storyboard View<small>六格看板 · 逐格改 · 数据叠层</small></div>
+      <div class="abox">Clip Stitcher<small>MediaCodec 拼接 · 8 帧交叉淡化</small></div>
+      <div class="abox">Personal Data Engine<small>偏好/记忆只读，端侧加密</small></div>
+    </div>
+    <div class="alink">→</div>
+    <div class="acol"><h4>服务端 · RENDER &amp; PLAN</h4>
+      <div class="acore"><b>Planner（3.5 Flash）</b><small>六镜脚本 · JSON Schema 强约束</small></div>
+      <div class="acore"><b>Storyboard Renderer</b><small>关键帧批量生成 · 构图锁定</small></div>
+      <div class="acore"><b>Video Queue</b><small>Omni job · 轮询 · 6 分钟超时</small></div>
+      <div class="acore"><b>Guard（规则引擎）</b><small>数据一致性 · 安全/合规拦截</small></div>
+      <div class="acore"><b>Action Executor</b><small>SmartThings OAuth · MCP · 幂等</small></div>
+    </div>
+    <div class="alink">→</div>
+    <div class="acol"><h4>外部数据与执行面</h4>
+      <div class="abox">天气 / 潮汐 / 紫外线<small>按坐标与时段查询</small></div>
+      <div class="abox">SmartThings 设备<small>洗烘 · 冰箱 · 灯 · 扫地机</small></div>
+      <div class="abox">日历 / 闹钟 / 购物车<small>MCP 或原生 Intent</small></div>
+      <div class="abox">Now Brief 卡片<small>进程结果回流</small></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <table>
+      <tr><th>组件</th><th>职责边界</th><th>不做什么</th></tr>
+      <tr><td><b>Plan Orchestrator</b></td><td>意图分类、上下文装配、调 Planner、维护 <code>plan_id</code> 与版本</td><td>不直连模型厂商密钥；不做渲染</td></tr>
+      <tr><td><b>Planner</b></td><td>只产出结构化脚本（<code>ShotSpec[]</code>），不改写用户原话之外的约束</td><td>不猜数据：缺失字段返回 <code>needs_data</code></td></tr>
+      <tr><td><b>Storyboard Renderer</b></td><td>把 ShotSpec 转成图像 prompt，批量出 6 张关键帧</td><td>不做风格自由发挥（锁 ref 与画风 token）</td></tr>
+      <tr><td><b>Video Queue</b></td><td>单镜任务化、重试、超时、成本记账</td><td>不在同一任务里串多镜（便于单镜替换）</td></tr>
+      <tr><td><b>Guard</b></td><td>把脚本里的数字与外部 API 对账；拦截高危建议</td><td>不生成文案；无权改剧本</td></tr>
+      <tr><td><b>Action Executor</b></td><td>批量命令、幂等键、撤销清单</td><td>不做「未确认即执行」</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s04">
+  <div class="sec-head"><span class="sec-no">04</span><h2>分镜合约与生成管线</h2><span class="sub">先把「镜头」定义成数据，再谈生成</span></div>
+  <div class="card">
+    <h3 class="bt">4.1 六镜合约（40 秒 / 6 镜 / 每镜 5–8 秒）</h3>
+    <table>
+      <tr><th>#</th><th>镜头</th><th>时长</th><th>必须携带的真实数据</th><th>画面基准</th></tr>
+      <tr><td>1</td><td>出发·装车</td><td><b>6s</b></td><td>出发时刻、气温、装备清单 diff</td><td>后备箱俯视，天幕/帐篷/保温箱位置固定</td></tr>
+      <tr><td>2</td><td>路上</td><td><b>5s</b></td><td>车程、路况、中途补给点</td><td>车内视角，后排儿童座椅</td></tr>
+      <tr><td>3</td><td>抵达营地</td><td><b>8s</b></td><td>营地坐标、风力、潮汐、日落时刻</td><td>第一人称走向营位，海平面在画右</td></tr>
+      <tr><td>4</td><td>搭天幕</td><td><b>7s</b></td><td>风向角、地面类型、日照</td><td>低机位，天幕杆与地钉可见</td></tr>
+      <tr><td>5</td><td>风险时刻</td><td><b>6s</b></td><td>阵风峰值、降雨概率、退潮时间</td><td>同一机位，光影明显变化</td></tr>
+      <tr><td>6</td><td>收尾·回程</td><td><b>8s</b></td><td>撤离时刻、垃圾/装备清点</td><td>夕阳侧逆光，车尾箱关闭</td></tr>
+    </table>
+    <p class="src">合计 40 秒，正好等于 Omni 续接链的累计上限——但工程上仍然<b>按 6 个独立 job 生成</b>，这样才能只换第 5 镜而不动其它。</p>
+
+    <h3 class="bt">4.2 管线八步</h3>
+    <div class="steps">
+      <div class="step"><div class="st">端侧意图与槽位抽取</div><div class="sd">Spark 端侧先判「是不是规划类」；是则抽 时间/同行人/地点/预算/禁忌 五个槽位。缺关键槽位就地追问，不带着空洞往下走。<code>&lt;300ms</code></div></div>
+      <div class="step"><div class="st">数据并联取数</div><div class="sd">按坐标与时段并发查：天气（含阵风）、潮汐、紫外线、路况；同时读 SmartThings 设备状态与日历冲突。<b>取数失败不阻塞</b>，标记 <code>data_gap</code> 并在看板上显式标注。</div></div>
+      <div class="step"><div class="st">Planner 出六镜脚本</div><div class="sd">3.5 Flash 按 JSON Schema 输出 <code>ShotSpec[6]</code>：镜头、时长、机位、画风、需要注入的数字。Schema 里 <code>durationSec</code> 限定 3–10 的整数，从根上防止生成非法时长。</div></div>
+      <div class="step"><div class="st">Guard 对账</div><div class="sd">脚本里的每个数字必须能追到某次 API 返回；对不上就回退该字段并重跑一次。高危建议（涉水、火源、悬崖）直接改写成保守版本。</div></div>
+      <div class="step"><div class="st">关键帧看板</div><div class="sd">6 张图并发渲染（固定 ref + 固定画风 token）；返回后拼成 2×3 看板，每格叠真实数据。<code>P50 9s / P90 15s</code>。此刻用户已可拍板。</div></div>
+      <div class="step"><div class="st">按需渲染影片</div><div class="sd">用户点「生成」后，只提交被改过的镜头 + 未缓存的镜头；队列并发 3 路，720p，单镜 <code>40–90s</code>。</div></div>
+      <div class="step"><div class="st">拼接与叠层</div><div class="sd">端侧 MediaCodec 拼接 + 8 帧交叉淡化（避免硬切跳帧）；旁白走本地 TTS 后配；时间/地点/风力以 Compose 图层叠在播放器上，<b>不烧进画面</b>。</div></div>
+      <div class="step"><div class="st">确认即执行</div><div class="sd">Action Executor 以一次批量调用落位：日历、闹钟、购物车、手表提醒、SmartThings 场景；返回可撤销清单，30 分钟内一键回滚。</div></div>
+    </div>
+
+    <h3 class="bt">4.3 单镜 prompt 契约（示例：第 3 镜）</h3>
+    <div class="code"><span class="c">// 送 Omni 的 user prompt（首轮即锁定全部约束——模型不支持 system instruction）</span>
+第一人称视角走向海边营位，傍晚 17:40，低角度侧逆光；
+海面在画面右侧，潮水线距离营位约 15 米；
+风力 4 级，天幕边缘明显鼓动，沙面有流动纹理；
+写实纪录风格，35mm，浅景深，不要任何文字或字幕；
+<span class="c">// 参考图：ref_char_01（人物外观）、ref_site_01（营地实景）</span>
+<span class="c">// durationSeconds: 8 · resolution: 720p · aspectRatio: 16:9</span></div>
+    <p class="src">注意：数字（17:40 / 15 米 / 4 级）只能来自 Guard 校验过的数据；prompt 里出现「字幕」二字是必须的负向约束，因为模型做文字不可靠。</p>
+  </div>
+</section>
+
+<section id="s05">
+  <div class="sec-head"><span class="sec-no">05</span><h2>一致性控制四层</h2><span class="sub">让六镜看起来像同一天、同一个地方、同一个人</span></div>
+  <div class="notes">
+    <div class="note"><div class="nt">① 角色一致性：固定 reference set</div><p>开拍前先生成一组「定妆图」（正面/侧面/背面/衣着细节），全片 6 镜复用同一组 ref（上限 10 张用满 4–6 张）；不使用文字描述角色，因为文字每次都会漂。跨镜一致性靠 ref，不靠 prompt。</p></div>
+    <div class="note"><div class="nt">② 场景一致性：首帧 + 空间锚</div><p>营地三镜（3/4/5）共用同一张「营地实景首帧」作为首帧输入，机位与海平面方位写死在 prompt 里。第 5 镜用第 3 镜的尾帧做首帧，保证「同一位置、时间流逝」而非「换了个地方」。</p></div>
+    <div class="note"><div class="nt">③ 物理一致性：数字显式注入</div><p>风力、潮汐、日照角全部以数值写进 prompt，并由 Guard 与 API 对账。不写「风有点大」这种形容词——模型无法把它落到画面上，也无法验证。</p></div>
+    <div class="note"><div class="nt">④ 文字一致性：不烧进画面</div><p>官方限制决定片内文字不可信。所有时间地点标签由播放器图层渲染，好处是 100% 准确、可切换语言、可随修改实时更新，也不需要重渲。</p></div>
+  </div>
+</section>
+
+<section id="s06">
+  <div class="sec-head"><span class="sec-no">06</span><h2>修改回路（单镜重渲）</h2><span class="sub">「8 秒重生成整片」是做不到的，但「20 秒换一镜」可以</span></div>
+  <div class="card">
+    <div class="steps">
+      <div class="step"><div class="st">定位受影响镜头</div><div class="sd">用户说「风太大，换湾内营地」→ 3.5 Flash 输出 <code>{affected:[3,4,5], reason:"营地变更", patch:{site:"湾内"}}</code>。定位只依赖脚本结构，不依赖画面理解。</div></div>
+      <div class="step"><div class="st">先重出关键帧</div><div class="sd">受影响 3 镜先重渲关键帧（约 6–10 秒），用户在看板上确认「就是这个湾内」再继续。避免花 1 分钟渲出不想要的片子。</div></div>
+      <div class="step"><div class="st">360p 草稿验证</div><div class="sd">确认构图后渲染 360p 草稿（比 720p 快约 60%、成本约 1/3），<code>P50 25s</code>；够用来判断运动与节奏是否对。</div></div>
+      <div class="step"><div class="st">720p 替换</div><div class="sd">草稿通过才上 720p，<code>40–90s/镜</code>；只替换受影响的片段，未受影响镜头直接复用缓存，成本按镜计。</div></div>
+      <div class="step"><div class="st">版本与回溯</div><div class="sd">每次修改生成 <code>cut_vN</code>，保留上一版 72 小时。评审现场改坏了能一键回到上一版——这是演示可靠性的保险丝。</div></div>
+    </div>
+    <div class="callout info"><b>会话状态策略：</b>Omni 的多轮编辑依赖有状态 Interactions 会话（<code>store=false</code> 会断开后续编辑能力）。因此采用「<b>会话内保留、任务结束即删除</b>」：一个 plan 的编辑会话最长 30 分钟，超时后仅保留最终资产，不保留可回溯的编辑链。</div>
+  </div>
+</section>
+
+<section id="s07">
+  <div class="sec-head"><span class="sec-no">07</span><h2>数据契约</h2><span class="sub">四张结构贯穿全链路；字段缺失必须显式，不许补默认值</span></div>
+  <div class="card">
+    <div class="code"><span class="c">// 1) 预演计划（Planner 产出，Schema 强约束）</span>
+RehearsalPlan {
+  planId: string;            <span class="c">// 幂等键，端侧生成 UUIDv7</span>
+  intent: string;
+  slots: { when, who[], where, budgetCny?, constraints[] };
+  dataGaps: string[];        <span class="c">// 明确列出没拿到的数据，禁止静默省略</span>
+  shots: ShotSpec[6];
+  actions: ActionPlan[];     <span class="c">// 待确认后才执行</span>
+  revision: int;
+}
+
+<span class="c">// 2) 分镜（每镜一次生成任务）</span>
+ShotSpec {
+  idx: 1..6; durationSec: 3..10;   <span class="c">// Schema 层强制范围</span>
+  camera: string; style: string;
+  facts: { key: string, value: string, source: "weather|tide|calendar|device" }[];
+  refImages: string[];        <span class="c">// ≤10</span>
+  firstFrameAssetId?: string;
+  aspect: "16:9" | "9:16";
+}
+
+<span class="c">// 3) 片段资产</span>
+ClipAsset {
+  clipId; shotIdx; resolution: "360p"|"720p"|"1080p"|"4k";
+  status: "queued|running|done|failed"; jobId?; attempts;
+  costUsd; generatedAt; checksum;
+}
+
+<span class="c">// 4) 执行计划（可撤销）</span>
+ActionPlan {
+  actionId; target: "calendar|alarm|cart|watch|smartthings";
+  payload; idempotencyKey; requiresConfirm: true;
+  undoToken?; executedAt?;
+}</div>
+    <p class="src">所有结构走 3.5 Flash 的 JSON Schema 结构化输出，解析失败率应接近 0；渲染任务与文本任务用 <code>planId</code> 关联，便于按 plan 统计成本。</p>
+  </div>
+</section>
+
+<section id="s08">
+  <div class="sec-head"><span class="sec-no">08</span><h2>延迟预算与成本模型</h2><span class="sub">把 v1 的「30 秒出片」换成能兑现的分段承诺</span></div>
+  <div class="card">
+    <table>
+      <tr><th>阶段</th><th>P50</th><th>P90</th><th>备注</th></tr>
+      <tr><td>语音→结构化意图</td><td>0.9s</td><td>1.6s</td><td>端侧分类 + Flash 抽槽</td></tr>
+      <tr><td>并联取数（天气/潮汐/设备）</td><td>0.8s</td><td>2.0s</td><td>失败不阻塞，记 data_gap</td></tr>
+      <tr><td>六镜脚本生成</td><td>1.4s</td><td>2.8s</td><td>JSON Schema 约束</td></tr>
+      <tr><td><b>六格看板可拍板（累计）</b></td><td><b>9s</b></td><td><b>15s</b></td><td>关键帧 6 路并发</td></tr>
+      <tr><td>单镜 360p 草稿</td><td>25s</td><td>45s</td><td>用于改稿验证</td></tr>
+      <tr><td>单镜 720p</td><td>55s</td><td>100s</td><td>6 镜并发 3 路 ≈ 2 批</td></tr>
+      <tr><td>拼接 + 叠层 + 后配旁白</td><td>3s</td><td>6s</td><td>端侧完成</td></tr>
+      <tr><td><b>整片可播（累计）</b></td><td><b>约 120s</b></td><td><b>约 210s</b></td><td>后台任务 + 通知，不阻塞操作</td></tr>
+    </table>
+
+    <h3 class="bt">8.1 单次完整预演成本</h3>
+    <table>
+      <tr><th>项</th><th>用量</th><th>成本</th></tr>
+      <tr><td>关键帧 6 张</td><td>每张 ~1,290 图像 token</td><td>≈ $0.02</td></tr>
+      <tr><td>360p 草稿（改稿 2 轮 × 3 镜）</td><td>6 × 6s</td><td>≈ $1.2</td></tr>
+      <tr><td>720p 成片 40s</td><td>40 × $0.10/s</td><td><b>≈ $4.0</b></td></tr>
+      <tr><td>脚本 + 校验 + 文案（Flash）</td><td>约 40k 入 / 6k 出</td><td>≈ $0.11</td></tr>
+      <tr><td><b>合计（一次成片 + 两轮改稿）</b></td><td></td><td><b>≈ $5.3（¥38）</b></td></tr>
+    </table>
+    <div class="callout"><b>成本红线：</b>如果一天跑 20 次全片演示，日成本约 $106；评审周 5 天就是 $530。因此必须做三件事：①演示默认走「看板 + 单镜 360p」，只有一次完整成片；②按 <code>planId</code> 记账并设日配额；③未改镜头百分百复用缓存。v1 没有这条，评审现场连跑几遍就会烧掉一个月预算。</div>
+  </div>
+</section>
+
+<section id="s09">
+  <div class="sec-head"><span class="sec-no">09</span><h2>失败处理矩阵</h2><span class="sub">演示现场不会给你重试三次的机会</span></div>
+  <div class="card" style="padding:10px 18px">
+    <table class="matrix">
+      <tr><th>失败场景</th><th>检测信号</th><th>降级动作</th><th>用户看到什么</th></tr>
+      <tr><td>单镜超时（&gt;6min）</td><td>job 轮询超时</td><td>该镜降 360p 重试一次；再失败用关键帧做 Ken Burns 动态</td><td>该格显示「草稿画质」，其余镜头正常</td></tr>
+      <tr><td>内容审核拒绝</td><td>安全过滤返回</td><td>去掉人物/涉水元素重写该镜 prompt（最多 2 次）</td><td>「这一镜改成远景，人物不入画」</td></tr>
+      <tr><td>角色漂移</td><td>与定妆图 CLIP 相似度 &lt; 阈值</td><td>重渲 + 增加 ref 权重，最多 2 次；仍漂则该镜改背面/远景</td><td>无感，或提示「这一镜改成了背影」</td></tr>
+      <tr><td>画面出现乱码文字</td><td>OCR 检出画面内文字</td><td>重渲并加强「no text」约束；连续失败则裁切/遮罩</td><td>无感</td></tr>
+      <tr><td>数据与 API 不一致</td><td>Guard 对账失败</td><td>回退该字段，重跑脚本一次</td><td>看板上该字段显示「未确认」灰标</td></tr>
+      <tr><td>比例/分辨率不合法</td><td>请求前 schema 校验</td><td>强制纠偏到 16:9 或 9:16</td><td>无感</td></tr>
+      <tr><td>拼接音画不同步</td><td>音轨时长 vs 视频时长偏差 &gt;80ms</td><td>重算时间轴；旁白按镜头边界重新对齐</td><td>无感</td></tr>
+      <tr><td>配额/限流</td><td>429 / 配额告警</td><td>排队并提示预计等待；演示模式走预留额度</td><td>「正在排队，约 2 分钟」</td></tr>
+      <tr><td>执行侧失败（设备离线）</td><td>SmartThings 5xx / 设备 offline</td><td>该动作标 pending，其余继续；10 分钟重试</td><td>「洗烘预约未生效，已加入重试」</td></tr>
+      <tr><td>整链不可用</td><td>模型或网络熔断</td><td>纯本地模式：看板用缓存模板 + 文字时间轴 + 风险清单</td><td>「今天只出方案不出片」——演示不中断</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s10">
+  <div class="sec-head"><span class="sec-no">10</span><h2>隐私与合规</h2></div>
+  <div class="card">
+    <ul class="tight">
+      <li><b>AI 生成标识：</b>所有输出带 SynthID 隐形水印；App 内与分享卡片均标注「AI 生成预演，非实拍」，避免被当作真实记录传播。</li>
+      <li><b>肖像：</b>不使用真人照片做 ref，默认用生成的定妆形象；若用户上传家人照片，仅本地加密存储、仅在本次任务内使用，任务结束即删。</li>
+      <li><b>个人上下文：</b>偏好与家庭记忆走 Personal Data Engine 端侧加密；上云只传本次任务所需的槽位字段（时间/地点/人数），不传通讯录与住址全量。</li>
+      <li><b>儿童：</b>场景涉及儿童时不上传可识别人脸，只保留背影/远景；这也是失败矩阵里「角色漂移→改背影」的合规理由。</li>
+      <li><b>数据保留：</b>渲染资产默认保留 7 天，用户可即时删除；Omni 编辑会话 30 分钟后不保留可回溯链。</li>
+      <li><b>区域：</b>EEA/瑞士/英国不支持上传视频编辑，若在这些区域演示须切纯生成路径（本方案主线已是纯生成，天然兼容）。</li>
+    </ul>
+  </div>
+</section>
+
+<section id="s11">
+  <div class="sec-head"><span class="sec-no">11</span><h2>计划·指标·风险</h2></div>
+  <div class="tl">
+    <div class="tw"><div class="w">WEEK 1</div><h3>基线与契约</h3><ul><li>Omni 延迟/成本实测（6/8/10s）</li><li>六镜 Schema 定稿</li><li>ref 一致性小样本（20 组）</li></ul><div class="exit">出口：真实 P50/P90 与单镜成本</div></div>
+    <div class="tw"><div class="w">WEEK 2</div><h3>看板链路</h3><ul><li>语音→脚本→六格看板</li><li>数据叠层与对账</li><li>首次内部演示</li></ul><div class="exit">出口：15 秒内可拍板</div></div>
+    <div class="tw"><div class="w">WEEK 3</div><h3>渲染与改稿</h3><ul><li>单镜队列 + 拼接</li><li>单镜重渲回路</li><li>旁白与叠层</li></ul><div class="exit">出口：改一镜 20 秒出草稿</div></div>
+    <div class="tw"><div class="w">WEEK 4</div><h3>执行与评审</h3><ul><li>SmartThings 批量落位</li><li>撤销与幂等</li><li>10 人种子测试 + 演示彩排</li></ul><div class="exit">出口：彩排连跑 10 次不炸</div></div>
+  </div>
+
+  <div class="metrics" style="margin-top:16px">
+    <div class="mc"><div class="mi">看板时延</div><div class="val">P90 15s</div><p>说完到六格可拍板</p></div>
+    <div class="mc"><div class="mi">成片可用率</div><div class="val">≥85%</div><p>6 镜全部可用（无乱码/无漂移）</p></div>
+    <div class="mc"><div class="mi">改稿成本</div><div class="val">≤1 镜</div><p>单次修改平均重渲镜头数</p></div>
+    <div class="mc"><div class="mi">执行落位</div><div class="val">≥3 类</div><p>单任务平均联动设备/入口类型</p></div>
+  </div>
+
+  <div class="risks" style="margin-top:14px">
+    <div class="rc"><h3>成片时长受限</h3><p>单条 3–10s、续接 40s 上限，做不出「3 分钟大片」。</p><div class="fix">✓ 产品定位改为「40 秒预演剪辑」，靠分镜叙事不靠时长</div></div>
+    <div class="rc"><h3>渲染慢导致演示空场</h3><p>720p 单镜近 1 分钟，6 镜要 2 分钟。</p><div class="fix">✓ 看板先出；现场用「已渲染好的备份 plan」兜底</div></div>
+    <div class="rc"><h3>成本失控</h3><p>无免费额度，$0.10/秒。</p><div class="fix">✓ 360p 优先 + 缓存复用 + 日配额 + 按 plan 记账</div></div>
+  </div>
+</section>
+
+<section id="s12">
+  <div class="sec-head"><span class="sec-no">12</span><h2>架构决策记录（ADR）</h2><span class="sub">每条都绑定一个事实依据，便于评审追责</span></div>
+  <div class="adr">
+    <div class="a"><div class="h"><em>ADR-01</em>以分镜片为单位生成，不做长片</div><p>依据：Omni 单条 3–10 秒、续接累计 40 秒上限。代价：需要客户端拼接与音画对齐；收益：可单镜替换、可并发、失败可局部降级。</p></div>
+    <div class="a"><div class="h"><em>ADR-02</em>先看板后渲染</div><p>依据：单镜 720p 耗时 40 秒–3 分钟。代价：多一次用户确认；收益：把「等待」从必经路径挪到可选路径，评审现场永远不会空场。</p></div>
+    <div class="a"><div class="h"><em>ADR-03</em>画面内不烧文字，数据走 UI 叠层</div><p>依据：官方模型卡将「画面内文字准确」列为已知限制。代价：成片分享时必须带播放器；收益：数据 100% 准确、可本地化、改数据不用重渲。</p></div>
+    <div class="a"><div class="h"><em>ADR-04</em>中文旁白用本地 TTS，不用 Omni 原生音频</div><p>依据：Omni 不改声音、语音编辑受限，且中文语调与品牌口吻难控。代价：多一步后配；收益：可改口播稿而不重渲画面。</p></div>
+    <div class="a"><div class="h"><em>ADR-05</em>16:9 与 9:16 双队列</div><p>依据：Omni 仅支持这两种比例。代价：同一 plan 渲两遍；收益：投屏与手机全屏都原生适配，不裁切。</p></div>
+    <div class="a"><div class="h"><em>ADR-06</em>修改走单镜重渲 + 版本回溯</div><p>依据：单镜成本可算（720p ≈$0.8/镜），整片重来成本 ×6 且等待翻倍。代价：需要镜头级缓存与版本管理。</p></div>
+    <div class="a"><div class="h"><em>ADR-07</em>设备执行全部经服务端，令牌不下端</div><p>依据：SmartThings PAT 现仅 24 小时有效、写入限 12 次/分钟/设备。代价：需要服务端；收益：可批量合并、可幂等、可撤销。</p></div>
+  </div>
+</section>
+</div>
+<footer>POC 方向 01 · 预演引擎 · 工程技术方案 v2 · 2026-10-21<br>模型与平台事实核对时间：2026-10-21 · 价格与限额以厂商文档当期为准，排期前需复核</footer>
+</body>
+</html>

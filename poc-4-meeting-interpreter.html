@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POC 方向 4 · 跨语言会议官 Meeting Interpreter · 工程技术方案 v2</title>
+<style>
+  :root{--bg:#070B14;--card:#0F1526;--card2:#121A2E;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+  --txt:#F2F5FA;--sub:#98A4BC;--faint:#5D6B87;--blue:#5B8CFF;--cyan:#3EE0C4;--orange:#FF9F43;--green:#4ADE80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:"PingFang SC","HarmonyOS Sans SC","MiSans","Microsoft YaHei",-apple-system,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px}
+  header{padding:58px 0 34px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .glow{position:absolute;width:500px;height:500px;border-radius:50%;filter:blur(100px);background:rgba(20,40,160,.28);top:-240px;left:-140px;pointer-events:none}
+  .eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;letter-spacing:.2em;color:var(--cyan);border:1px solid rgba(62,224,196,.35);border-radius:999px;padding:5px 14px;margin-bottom:20px;background:rgba(62,224,196,.06)}
+  h1{font-size:40px;font-weight:800}
+  h1 .en{display:block;font-size:15px;font-weight:600;letter-spacing:.3em;color:var(--faint);margin-top:8px;text-transform:uppercase}
+  .lead{margin-top:16px;font-size:15.5px;color:var(--sub);max-width:790px}
+  .lead b{color:var(--txt)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .chip{font-size:12px;color:#C9D4EA;background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:5px 14px}
+  .chip b{color:var(--blue)}
+  section{padding:40px 0 4px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+  .sec-no{font-size:13px;color:var(--blue);font-weight:700;letter-spacing:.2em}
+  .sec-head h2{font-size:23px;font-weight:800}
+  .sec-head .sub{font-size:11.5px;color:var(--faint)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .story{font-size:14px;color:var(--sub)}
+  .story b{color:var(--txt)}
+  .story .hl{color:var(--cyan);font-weight:600}
+  .alt{margin-top:12px;font-size:12.5px;color:var(--faint);border-left:2px solid var(--line2);padding-left:14px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;color:var(--faint);font-weight:600;letter-spacing:.06em;padding:9px 10px;border-bottom:1px solid var(--line2);font-size:11.5px}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--sub);vertical-align:top}
+  td b{color:var(--txt)}
+  td .ok{color:var(--green);font-size:10.5px;border:1px solid rgba(74,222,128,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .wip{color:var(--orange);font-size:10.5px;border:1px solid rgba(255,159,67,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .no{color:#FF6B6B;font-size:10.5px;border:1px solid rgba(255,107,107,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  .arch{display:grid;grid-template-columns:1fr 36px 1.25fr 36px 1fr;align-items:stretch;gap:0}
+  .acol h4{font-size:11.5px;letter-spacing:.16em;color:var(--faint);margin-bottom:10px}
+  .abox{background:var(--card2);border:1px solid var(--line2);border-radius:11px;padding:9px 12px;font-size:12.5px;margin-bottom:8px}
+  .abox small{display:block;font-size:10.5px;color:var(--faint);line-height:1.5}
+  .acore{background:linear-gradient(180deg,rgba(91,140,255,.1),rgba(62,224,196,.05));border:1px solid rgba(91,140,255,.4);border-radius:11px;padding:9px 12px;margin-bottom:8px}
+  .acore b{font-size:12.5px}.acore small{display:block;font-size:10.5px;color:var(--sub);line-height:1.5}
+  .alink{display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:12px}
+  .steps{counter-reset:s;display:flex;flex-direction:column;gap:11px}
+  .step{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:13px;align-items:start}
+  .step::before{content:counter(s,decimal-leading-zero);width:32px;height:32px;border-radius:9px;background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.4);color:var(--blue);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .step .st{font-size:14px;font-weight:700;margin-bottom:2px}
+  .step .st,.step .sd{grid-column:2}
+  .step .sd{font-size:12.5px;color:var(--sub)}
+  .step .sd code,p code,td code,li code{color:var(--cyan);font-size:11.5px;background:rgba(62,224,196,.08);padding:1px 5px;border-radius:5px;font-family:Consolas,monospace}
+  .notes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .note{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .note .nt{font-size:12.5px;font-weight:700;color:var(--cyan);margin-bottom:5px}
+  .note p{font-size:12px;color:var(--sub)}
+  .tl{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+  .tw{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px}
+  .tw .w{font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--blue)}
+  .tw h3{font-size:14px;margin:5px 0 7px}
+  .tw ul{list-style:none}
+  .tw li{font-size:11.5px;color:var(--sub);padding:2px 0 2px 13px;position:relative}
+  .tw li::before{content:"·";position:absolute;left:2px;color:var(--blue)}
+  .tw .exit{margin-top:8px;font-size:11px;color:var(--green);border-top:1px solid var(--line);padding-top:7px}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .mc{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px}
+  .mc .mi{font-size:10.5px;letter-spacing:.14em;color:var(--faint)}
+  .mc .val{font-size:23px;font-weight:800;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:4px 0}
+  .mc p{font-size:11.5px;color:var(--sub)}
+  .risks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .rc{background:var(--card);border:1px solid rgba(255,159,67,.22);border-radius:15px;padding:18px}
+  .rc h3{font-size:13.5px;margin-bottom:5px}
+  .rc p{font-size:11.5px;color:var(--sub)}
+  .rc .fix{margin-top:8px;font-size:11.5px;color:var(--green)}
+  .toc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .toc a{display:flex;gap:9px;font-size:12px;color:var(--sub);text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+  .toc a b{color:var(--blue);font-weight:700}
+  .code{background:#080D1A;border:1px solid var(--line2);border-radius:11px;padding:13px 15px;font-family:Consolas,"SF Mono",monospace;font-size:11.5px;line-height:1.72;color:#B9C6DE;overflow-x:auto;white-space:pre;margin-top:12px}
+  .code .c{color:var(--faint)}
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;font-size:12.5px}
+  .kv div{padding:7px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px}
+  .kv span{color:var(--faint)}.kv b{color:var(--txt);text-align:right}
+  .callout{border-left:2px solid var(--orange);background:rgba(255,159,67,.06);border-radius:0 11px 11px 0;padding:13px 16px;font-size:12.5px;color:var(--sub);margin-top:12px}
+  .callout b{color:var(--orange)}
+  .callout.good{border-color:var(--green);background:rgba(74,222,128,.06)}
+  .callout.good b{color:var(--green)}
+  .callout.info{border-color:var(--blue);background:rgba(91,140,255,.06)}
+  .callout.info b{color:var(--blue)}
+  .matrix td:first-child{color:var(--txt);font-weight:600;font-size:11.5px}
+  .adr{display:flex;flex-direction:column;gap:9px}
+  .adr .a{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+  .adr .a .h{font-size:13px;font-weight:700;margin-bottom:3px}
+  .adr .a .h em{font-style:normal;font-size:10px;color:var(--blue);border:1px solid rgba(91,140,255,.4);border-radius:5px;padding:1px 6px;margin-right:7px;letter-spacing:.08em}
+  .adr .a p{font-size:12px;color:var(--sub)}
+  ul.tight{list-style:none;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--sub)}
+  ul.tight li{padding-left:13px;position:relative}
+  ul.tight li::before{content:"—";position:absolute;left:0;color:var(--blue)}
+  h3.bt{font-size:14px;margin:22px 0 10px;color:var(--txt)}
+  h3.bt:first-child{margin-top:0}
+  .src{font-size:10.5px;color:var(--faint);margin-top:9px;line-height:1.7}
+  footer{margin-top:52px;padding:28px 0 40px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);text-align:center;line-height:1.9}
+  @media(max-width:900px){.arch{grid-template-columns:1fr}.alink{transform:rotate(90deg);padding:8px 0}.tl,.metrics,.risks,.notes,.toc,.kv{grid-template-columns:1fr}h1{font-size:29px}}
+</style>
+</head>
+<body>
+<header><div class="glow"></div><div class="wrap">
+  <div class="eyebrow">POC 方向 04 · 工程技术方案 · v2 细化版</div>
+  <h1>跨语言会议官<span class="en">Meeting Interpreter</span></h1>
+  <p class="lead">中日英混说的例会：译文进耳朵、原文上大屏、<b>每句话标出是谁说的</b>；散会 60 秒给出决议、待办与术语表，待办一键进日历。<br>本文档细化到<b>拾音几何、声纹归属、分段并行翻译、会话重连、术语一致性、纪要抽取与隐私边界</b>——其中一条结论会推翻常见做法：<b>耳机麦克风不能当会议室麦克风用</b>。</p>
+  <div class="chips">
+    <div class="chip">载体 <b>Tab S11 + S26 + Buds4 Pro</b></div>
+    <div class="chip">拾音 <b>平板阵列（房间）</b></div>
+    <div class="chip">翻译 <b>Gemini Live 分段</b></div>
+    <div class="chip">纪要 <b>3.5 Flash 结构化</b></div>
+    <div class="chip">周期 <b>4 周</b> · 2.5 人月</div>
+    <div class="chip">版本 <b>v2 · 2026-10-21</b></div>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="sec-head"><span class="sec-no">00</span><h2>目录</h2></div>
+  <div class="toc">
+    <a href="#s01"><b>01</b>概念与主场景</a>
+    <a href="#s02"><b>02</b>事实基线与硬约束</a>
+    <a href="#s03"><b>03</b>系统架构（拾音是关键）</a>
+    <a href="#s04"><b>04</b>音频管线与说话人归属</a>
+    <a href="#s05"><b>05</b>分段翻译与术语一致性</a>
+    <a href="#s06"><b>06</b>会话生命周期（跨 15 分钟）</a>
+    <a href="#s07"><b>07</b>纪要结构与待办抽取</a>
+    <a href="#s08"><b>08</b>数据契约</a>
+    <a href="#s09"><b>09</b>延迟预算与成本</a>
+    <a href="#s10"><b>10</b>失败处理矩阵</a>
+    <a href="#s11"><b>11</b>隐私与合规</a>
+    <a href="#s12"><b>12</b>计划·指标·ADR</a>
+  </div>
+</section>
+
+<section id="s01">
+  <div class="sec-head"><span class="sec-no">01</span><h2>概念与主场景</h2><span class="sub">先承认「谁在说」是有上限的，再谈怎么做得比别人好</span></div>
+  <div class="card">
+    <p class="story">周一的跨国例会，东京、北京、柏林三方混说日/中/英。平板立在桌中央当会议麦克风，中国同事戴着 Buds4 Pro：<b>「山田：来週の納品ですが…（译文入耳：山田说，下周的交付……）」</b>——译文前面挂着说话人名字，因为会前每个人都用 5 秒录了一句声纹。讲到专业处，平板双栏滚动原文与译文，点任意一句能回跳录音位置。散会 60 秒，纪要已就绪：决议 3 条、待办 5 条（谁 / 做什么 / 什么时候前）、术语表 12 条（「SKU 补货周期」全文统一译法）。待办一键写入各人日历——但<b>置信度低的待办只标「待确认」，不自动写</b>。</p>
+    <p class="alt">备选场景：跨国客服坐席（实时辅助应答 + 会后质检）；海外差旅面谈（手机单机模式，仅本人近讲）；线上会议（直接吃系统音频轨，拾音问题消失，是最容易做对的一种）。</p>
+    <div class="callout"><b>能力边界要写在产品里：</b>「谁在说」靠声纹匹配，<b>不是靠空间定位</b>。已注册的人能认出来；没注册的人只能标「未知发言人」。抢话、咳嗽、笑声会污染归属——这一点在演示时必须说明，否则第一次标错就会被质疑整套系统。</div>
+  </div>
+</section>
+
+<section id="s02">
+  <div class="sec-head"><span class="sec-no">02</span><h2>事实基线与硬约束</h2><span class="sub">三星现成能力的实测数字，决定了我们不能「直接套用」</span></div>
+  <div class="card">
+    <h3 class="bt">2.1 现有 Interpreter 能力与实测表现</h3>
+    <table>
+      <tr><th>项</th><th>事实</th><th>对方案的影响</th></tr>
+      <tr><td><b>语言</b></td><td>官方称覆盖约 <b>22 种语言</b>，含中文（大陆/香港/台湾）、英（澳/印/美/英）、日、韩、德、法、西等</td><td>中日英三语在覆盖范围内，不必自建翻译模型</td></tr>
+      <tr><td><b>算在哪</b></td><td>翻译在<b>配对的三星手机</b>上完成，非耳机独立完成；需 One UI 6.1.1 以上</td><td>会议场景要一台专用手机/平板做计算宿主</td></tr>
+      <tr><td><b>延迟</b></td><td>媒体实测<b>每次译文有 2–3 秒延迟</b>；被评为「日常够用，重要会议不够」</td><td>我们的目标不是「更快」，而是「更完整」：多说话人、术语、纪要</td></tr>
+      <tr><td><b>交互形态</b></td><td>face-to-face 模式：对方对着手机说话，译文进耳机，本人回话由手机外放；<b>模式切换要在手机上点</b></td><td>这是「两人轮流」的形态，不适合多人连续讨论</td></tr>
+      <tr><td><b>不支持</b></td><td>不能翻译录音、不能翻译视频音轨</td><td>会议录音回放翻译必须自建</td></tr>
+    </table>
+
+    <h3 class="bt">2.2 拾音几何（本节是本方案与 v1 的分水岭）</h3>
+    <table>
+      <tr><th>项</th><th>事实</th><th>后果</th></tr>
+      <tr><td><b>Buds4 Pro 麦克风</b></td><td>每只耳机 3 个麦，共 <b>6 个</b>；单耳独立 DNN 处理，两耳之间不交互</td><td>做降噪与本人语音增强很好，做「房间声源定位」很差</td></tr>
+      <tr><td><b>物理间距</b></td><td>两耳间距约 15–20cm，且随头部转动</td><td>麦克风基线太短，只能分辨左右半平面，无法定位多人</td></tr>
+      <tr><td><b>说话人距离</b></td><td>对方在 1–4 米外，耳机是开放式佩戴</td><td>远端语音信噪比低，会议室混响直接吃掉清晰度</td></tr>
+      <tr><td><b>平板/手机阵列</b></td><td>设备放桌面，多麦阵列 + 波束成形，天然对准房间</td><td><b>拾音应该由平板做</b>，耳机只做「输出 + 本人近讲」</td></tr>
+    </table>
+    <div class="callout"><b>v1 的「Buds 麦克风阵列做会议室拾音」撤回。</b>正确分工是：<b>平板负责房间拾音</b>（远场、多人），<b>耳机负责播报</b>（私密、不打扰别人），<b>手机负责计算与网络</b>。这样三个设备的物理特性都被用在对的地方。</div>
+
+    <h3 class="bt">2.3 模型基线</h3>
+    <div class="kv">
+      <div><span>实时翻译</span><b>Gemini Live：纯音频会话约 15 分钟</b></div>
+      <div><span>视频输入</span><b>1 FPS（本方案不用视频）</b></div>
+      <div><span>结构化输出</span><b>Live 不支持 JSON，只支持 function calling</b></div>
+      <div><span>纪要模型</span><b>3.5 Flash：$1.50/$9，1M 上下文</b></div>
+      <div><span>音频输入计价</span><b>3.5 Flash 音频入 $3.00/百万 token</b></div>
+      <div><span>纪要输出</span><b>支持 JSON Schema 强约束</b></div>
+    </div>
+  </div>
+</section>
+
+<section id="s03">
+  <div class="sec-head"><span class="sec-no">03</span><h2>系统架构（拾音是关键）</h2><span class="sub">三个设备各干一件它物理上最擅长的事</span></div>
+  <div class="arch">
+    <div class="acol"><h4>拾音与输出</h4>
+      <div class="abox">Tab S11 桌面阵列<small>房间远场拾音 · 16kHz PCM 单声道</small></div>
+      <div class="abox">Buds4 Pro<small>仅播报译文 + 本人近讲补充</small></div>
+      <div class="abox">声纹注册（会前 5 秒/人）<small>端侧 embedding，不上传原始音频</small></div>
+    </div>
+    <div class="alink">→</div>
+    <div class="acol"><h4>计算 · GALAXY S26 / TAB</h4>
+      <div class="acore"><b>VAD + 分段器</b><small>端侧，静音 350ms 断句，最长 12 秒强制切</small></div>
+      <div class="acore"><b>声纹匹配</b><small>embedding 余弦相似度，阈值 0.72</small></div>
+      <div class="acore"><b>翻译流水线</b><small>3 路并发 · 序号对齐 · 迟到丢弃</small></div>
+      <div class="acore"><b>术语后校验</b><small>命中术语表则比对，不一致二次修正</small></div>
+    </div>
+    <div class="alink">→</div>
+    <div class="acol"><h4>呈现与产出</h4>
+      <div class="abox">双栏对照<small>原文/译文 · 点击回跳录音位置</small></div>
+      <div class="abox">耳机播报<small>只播译文，不播原文（避免双声）</small></div>
+      <div class="abox">纪要卡<small>决议/待办/术语/风险</small></div>
+      <div class="abox">日历与邮件<small>仅高置信度待办自动写入</small></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <table>
+      <tr><th>为什么这样分工</th><th>收益</th><th>代价</th></tr>
+      <tr><td>平板拾音</td><td>远场清晰度提升明显；不受佩戴者头部转动影响；可固定增益</td><td>需用户把平板立在桌上（产品要教一次）</td></tr>
+      <tr><td>耳机只做输出</td><td>译文私密、不打断会议；本人可轻声追问</td><td>本人发言仍由平板拾取，耳机麦克风不参与</td></tr>
+      <tr><td>手机做计算与网络</td><td>编解码、重连、缓存都在端侧，平板只负责采集与显示</td><td>多设备协同需要一次配对流程</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s04">
+  <div class="sec-head"><span class="sec-no">04</span><h2>音频管线与说话人归属</h2><span class="sub">归属是概率，产品必须允许「不知道」</span></div>
+  <div class="card">
+    <div class="steps">
+      <div class="step"><div class="st">采集与预处理</div><div class="sd">平板阵列 16kHz 单声道；端侧做 AGC（自动增益）与轻降噪。<b>不做强降噪</b>——过度降噪会削掉辅音，翻译反而更差。</div></div>
+      <div class="step"><div class="st">VAD 与切段</div><div class="sd">静音 <code>≥350ms</code> 判句末；连续语音最长 <code>12s</code> 强制切；切点优先落在能量谷，避免切在词中。每段带 <code>seq</code> 与起止时间戳。</div></div>
+      <div class="step"><div class="st">声纹匹配</div><div class="sd">段级 embedding 与会前注册库比对，余弦 ≥<code>0.72</code> 判归属；<code>0.55–0.72</code> 标「可能·低置信」；&lt;0.55 标「未知发言人」。<b>永不硬猜</b>。</div></div>
+      <div class="step"><div class="st">连续段合并</div><div class="sd">同一说话人相邻段间隔 &lt;800ms 则合并为一句，避免译文碎成豆腐块；合并后仍保留原段时间戳用于回跳。</div></div>
+      <div class="step"><div class="st">并发翻译</div><div class="sd">最多 3 段并行；结果按 <code>seq</code> 排序输出，<b>迟到的段直接丢弃不插队</b>——会议场景里「顺序错」比「漏一句」更伤。</div></div>
+      <div class="step"><div class="st">播报与上屏</div><div class="sd">译文进耳机（一句话一条），双栏上屏；说话人名字只在「已注册」时显示，其余显示「未知」。</div></div>
+    </div>
+    <div class="callout info"><b>为什么不追求更高的归属准确率：</b>声纹在 3 米混响下本身就有天花板；把阈值压低会让「猜错的人名」变多，而会议纪要里写错发言人比写「未知」严重得多。这是产品取舍，不是技术妥协。</div>
+  </div>
+</section>
+
+<section id="s05">
+  <div class="sec-head"><span class="sec-no">05</span><h2>分段翻译与术语一致性</h2></div>
+  <div class="card">
+    <table>
+      <tr><th>策略</th><th>做法</th><th>解决的痛点</th></tr>
+      <tr><td><b>上下文注入</b></td><td>每段请求携带「上两段原文 + 术语表命中项」，不携带全文</td><td>段与段之间的指代（「那个方案」）能接上</td></tr>
+      <tr><td><b>术语表强制</b></td><td>命中术语直接以「术语=固定译法」形式注入；译文返回后做字符串校验</td><td>同一名词全文译法不一致</td></tr>
+      <tr><td><b>二次修正</b></td><td>校验不一致时，用 Flash 做一次「只改术语、不改其它」的重写</td><td>避免整段重译带来的风格漂移</td></tr>
+      <tr><td><b>新术语发现</b></td><td>高频未登录专名（出现 ≥3 次且被引号/英文标注）提示用户确认译法</td><td>会前没准备到的词</td></tr>
+      <tr><td><b>不译项</b></td><td>人名、产品型号、代码标识保留原文</td><td>「SKU-4471」被翻成中文的灾难</td></tr>
+    </table>
+    <div class="code"><span class="c">// 术语表注入格式（每段都带，成本极低但效果显著）</span>
+[TERMS]
+SKU 补货周期 = SKU replenishment cycle
+交付验收 = delivery acceptance
+山田太郎 = Yamada Taro        <span class="c">// 人名保留原文，不音译</span>
+[RULE] 数字、型号、代码标识原样保留；不确定时保留原文而非猜测。</div>
+  </div>
+</section>
+
+<section id="s06">
+  <div class="sec-head"><span class="sec-no">06</span><h2>会话生命周期（跨 15 分钟）</h2><span class="sub">一场 1 小时的会，要跨 4 次会话边界</span></div>
+  <div class="card">
+    <table>
+      <tr><th>项</th><th>事实约束</th><th>工程做法</th></tr>
+      <tr><td>单会话上限</td><td>纯音频约 15 分钟</td><td>每 12 分钟主动收会话并重连，避开强制断</td></tr>
+      <tr><td>恢复能力</td><td>提供恢复令牌（约 2 小时有效）</td><td>重连优先用恢复令牌，失败则新会话 + 注入简报</td></tr>
+      <tr><td>记忆衰减</td><td>重连后模型对「刚才在讨论什么」会衰减</td><td>外置状态：最近 2 段原文 + 当前议题 + 术语表，每次重连注入</td></tr>
+      <tr><td>用户感知</td><td>不能出现「卡住」</td><td>重连期间用本地缓存译文顶 1–2 句；超过 3 秒提示「稍等，我在接上」</td></tr>
+    </table>
+    <div class="code"><span class="c">// 重连简报（每次新会话注入，约 400 token，成本可忽略）</span>
+会议：Q4 交付评审｜议题：SKU 补货周期与验收标准
+已进行：42 分钟｜已产出：3 条待办、2 条决议
+最近上下文：山田提出补货周期从 14 天压到 10 天，柏林方担心库存成本
+本会话任务：继续逐段翻译，保持术语表一致；不总结、不评论。</div>
+  </div>
+</section>
+
+<section id="s07">
+  <div class="sec-head"><span class="sec-no">07</span><h2>纪要结构与待办抽取</h2><span class="sub">纪要的价值不在「全」，在「可核对」</span></div>
+  <div class="card">
+    <div class="code"><span class="c">// 3.5 Flash 结构化输出（全文 1 小时约 15–20k token，一次调用）</span>
+MeetingMinutes {
+  title; date; durationMin; langs: ["ja","zh","en"];
+  decisions: [{ text, quote, speaker, at }];              <span class="c">// 每条必须带原文引用与时间点</span>
+  todos: [{ who, what, due, confidence, quote, at }];      <span class="c">// due 缺失则 null，不猜</span>
+  glossary: [{ term, translation, occurrences }];
+  openQuestions: [{ text, quote, at }];
+  risks: [{ text, quote, at }];
+}</div>
+    <table style="margin-top:12px">
+      <tr><th>规则</th><th>说明</th></tr>
+      <tr><td><b>无引用不入纪要</b></td><td>每条决议/待办必须能回跳原文；抽不出来的宁可不写</td></tr>
+      <tr><td><b>due 不许编</b></td><td>原文没提时间就留空，日历侧显示「待确认时间」</td></tr>
+      <tr><td><b>who 只认已注册声纹</b></td><td>「未知发言人」的待办统一挂到「待认领」列表</td></tr>
+      <tr><td><b>自动写入的门槛</b></td><td>confidence ≥0.8 且 who 已确认且 due 明确，三者齐备才自动写日历</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s08">
+  <div class="sec-head"><span class="sec-no">08</span><h2>数据契约</h2></div>
+  <div class="card">
+    <div class="code">TranscriptSegment {
+  segId; sessionId; seq; startMs; endMs;
+  speakerId?: string;          <span class="c">// null = 未知</span>
+  speakerConf: number;          <span class="c">// 0..1</span>
+  lang: "ja"|"zh"|"en"|"auto";
+  textOriginal; textTranslated;
+  termHits: string[]; flags: ("low_conf"|"merged"|"retranslated")[];
+  audioRef: string;             <span class="c">// 端侧录音文件偏移，不上传</span>
+}
+
+Glossary { termId; term; translation; scope:"meeting"|"org"; confirmedBy?: userId }
+
+SessionState {                <span class="c">// 重连用，端侧持有</span>
+  sessionId; startedAt; reconnectCount;
+  lastTwoSegments: TranscriptSegment[2];
+  currentTopic; pendingTodos: int;
+}</div>
+  </div>
+</section>
+
+<section id="s09">
+  <div class="sec-head"><span class="sec-no">09</span><h2>延迟预算与成本</h2><span class="sub">目标不是破纪录，而是「不比现成方案差，且多出三件事」</span></div>
+  <div class="card">
+    <table>
+      <tr><th>环节</th><th>P50</th><th>P90</th><th>说明</th></tr>
+      <tr><td>平板拾音 → 端侧 VAD 断句</td><td>0.35s</td><td>0.5s</td><td>含 350ms 静音判定</td></tr>
+      <tr><td>声纹匹配</td><td>0.08s</td><td>0.15s</td><td>端侧 embedding</td></tr>
+      <tr><td>分段翻译（Live）</td><td>0.9s</td><td>1.6s</td><td>含网络往返</td></tr>
+      <tr><td>耳机播报</td><td>0.15s</td><td>0.3s</td><td>LE Audio 低延迟</td></tr>
+      <tr><td><b>说完到听到译文</b></td><td><b>1.6s</b></td><td><b>2.6s</b></td><td>与三星现成 Interpreter 的 2–3 秒同档，但多了说话人归属与术语一致</td></tr>
+      <tr><td>会后纪要</td><td>18s</td><td>40s</td><td>1 小时会议一次调用</td></tr>
+    </table>
+    <h3 class="bt">9.1 单场会议成本（1 小时 / 4 人）</h3>
+    <table>
+      <tr><th>项</th><th>用量</th><th>成本</th></tr>
+      <tr><td>Live 音频翻译</td><td>60 分钟音频（约 32 token/秒 → 115k token）</td><td>≈ $1.2</td></tr>
+      <tr><td>纪要生成（3.5 Flash）</td><td>20k 入 / 4k 出</td><td>≈ $0.07</td></tr>
+      <tr><td>术语二次修正</td><td>约 30 段</td><td>≈ $0.05</td></tr>
+      <tr><td><b>合计</b></td><td></td><td><b>≈ $1.3（¥9）/场</b></td></tr>
+    </table>
+    <p class="src">按每天 3 场、每月 22 天算，单用户月成本约 ¥600。这决定了它更适合做企业席位（按人/月订阅）而不是 C 端免费功能。</p>
+  </div>
+</section>
+
+<section id="s10">
+  <div class="sec-head"><span class="sec-no">10</span><h2>失败处理矩阵</h2></div>
+  <div class="card" style="padding:10px 18px">
+    <table class="matrix">
+      <tr><th>失败场景</th><th>检测信号</th><th>降级动作</th><th>用户看到/听到</th></tr>
+      <tr><td>多人抢话</td><td>段内 embedding 方差大</td><td>标「多人重叠」，只译主声源，不标归属</td><td>「（两人同时说话）」</td></tr>
+      <tr><td>未注册发言人</td><td>相似度 &lt;0.55</td><td>标「未知发言人」，纪要里进「待认领」</td><td>「未知：……」</td></tr>
+      <tr><td>远场听不清</td><td>信噪比低于阈值</td><td>提示「靠近一点/把平板挪到桌子中间」</td><td>「这句没听清，能重复一下吗？」</td></tr>
+      <tr><td>会话到期</td><td>12 分钟主动收 / GoAway</td><td>静默重连 + 注入简报；缓存顶 1–2 句</td><td>无感</td></tr>
+      <tr><td>译文顺序错乱</td><td><code>seq</code> 与到达顺序不一致</td><td>按 seq 重排；迟到超 5 秒丢弃</td><td>无感（宁可少一句）</td></tr>
+      <tr><td>术语译法不一致</td><td>术语表字符串校验失败</td><td>二次修正；仍失败则保留原文并高亮</td><td>该词显示原文 + 下划线</td></tr>
+      <tr><td>专业词大面积误译</td><td>低置信标记比例 &gt;15%</td><td>提示「这场专业词多，建议会前导入术语表」</td><td>会中不打断，会后提示</td></tr>
+      <tr><td>待办抽取缺 who/due</td><td>Schema 校验失败</td><td>降级为「待认领待办」，不写日历</td><td>「这 2 条待办需要你补一下负责人」</td></tr>
+      <tr><td>设备断连</td><td>Buds/Tab 掉线</td><td>切手机单机模式（仅本人近讲）</td><td>「耳机断开，已切到手机模式」</td></tr>
+      <tr><td>网络不可用</td><td>往返超时</td><td>切离线语言包（若已下载），质量下降但可用</td><td>「现在用离线翻译，准确率会低一些」</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="s11">
+  <div class="sec-head"><span class="sec-no">11</span><h2>隐私与合规</h2><span class="sub">「录音不出端侧」这句话必须说准，不能说过头</span></div>
+  <div class="card">
+    <div class="notes">
+      <div class="note"><div class="nt">真实的数据流</div><p>原始录音<b>只存端侧</b>（Knox 加密）；但<b>每一段语音都会上传到云端做翻译</b>——这是云模型翻译的物理事实。付费 API 层默认不将数据用于模型训练，但「上云处理」这件事必须如实告知，不能说成「全程本地」。</p></div>
+      <div class="note"><div class="nt">会前告知</div><p>开始录音前，平板显示明确提示并要求全体确认（一次点击）；与会者名单可查。企业版提供「会议纪要留痕」开关，默认关闭。</p></div>
+      <div class="note"><div class="nt">保留期</div><p>录音默认 <b>7 天</b>自动删除，可设 24 小时；纪要文本长期保留但可单条删除；声纹 embedding 可随时注销，注销后历史归属降级为「未知」。</p></div>
+      <div class="note"><div class="nt">跨境</div><p>跨国会议必然涉及数据出境。企业版需支持指定处理区域（如仅中国大陆节点 / 仅日本节点），并按客户合规要求提供 DPA 与处理记录。</p></div>
+    </div>
+    <div class="callout"><b>评审时会被问的那一句：</b>「录音会不会被你们拿去训练？」回答要具体：<b>付费 API 通道默认不用于训练；原始音频只存在设备上；云端只处理片段且不落库（关闭存储）；保留期可配。</b>含糊其辞会直接失去企业客户的信任。</div>
+  </div>
+</section>
+
+<section id="s12">
+  <div class="sec-head"><span class="sec-no">12</span><h2>计划·指标·ADR</h2></div>
+  <div class="tl">
+    <div class="tw"><div class="w">WEEK 1</div><h3>拾音基线</h3><ul><li>平板 vs 耳机拾音对比</li><li>VAD 断句准确率</li><li>Live 翻译延迟实测</li></ul><div class="exit">出口：确定拾音设备与摆放要求</div></div>
+    <div class="tw"><div class="w">WEEK 2</div><h3>核心链路</h3><ul><li>分段→归属→翻译→播报</li><li>双栏对照 + 回跳</li><li>声纹注册流程</li></ul><div class="exit">出口：三语混说能跟会</div></div>
+    <div class="tw"><div class="w">WEEK 3</div><h3>术语与重连</h3><ul><li>术语表注入与校验</li><li>12 分钟重连 + 简报</li><li>纪要结构化</li></ul><div class="exit">出口：1 小时会不断线</div></div>
+    <div class="tw"><div class="w">WEEK 4</div><h3>实测与评审</h3><ul><li>5 场真实例会</li><li>待办采纳率统计</li><li>现场开一场会</li></ul><div class="exit">出口：纪要可直接发群</div></div>
+  </div>
+  <div class="metrics" style="margin-top:16px">
+    <div class="mc"><div class="mi">译文延迟</div><div class="val">P90 2.6s</div><p>说完到入耳；与现成方案同档</p></div>
+    <div class="mc"><div class="mi">归属准确</div><div class="val">≥85%</div><p>已注册发言人的段级归属</p></div>
+    <div class="mc"><div class="mi">术语一致</div><div class="val">≥95%</div><p>术语表命中项译法一致率</p></div>
+    <div class="mc"><div class="mi">待办采纳</div><div class="val">≥70%</div><p>被本人确认无需修改的比例</p></div>
+  </div>
+  <div class="adr" style="margin-top:16px">
+    <div class="a"><div class="h"><em>ADR-01</em>平板拾音，耳机只做输出</div><p>依据：双耳麦克风基线仅 15–20cm、远端 1–4 米、开放式佩戴，物理上无法做房间声源定位。代价：多一台设备与一次摆放引导；收益：远场清晰度与稳定性显著提升。</p></div>
+    <div class="a"><div class="h"><em>ADR-02</em>归属只做声纹匹配，不做空间定位</div><p>依据：阵列基线不足；混响下 TDOA 不可靠。代价：未注册者只能标「未知」；收益：不会出现「把 A 的话记成 B」这种破坏信任的错误。</p></div>
+    <div class="a"><div class="h"><em>ADR-03</em>迟到的段直接丢弃</div><p>依据：会议里顺序错比漏一句更伤。代价：极端网络下会缺句；收益：时间线始终可信。</p></div>
+    <div class="a"><div class="h"><em>ADR-04</em>12 分钟主动重连，不等 GoAway</div><p>依据：纯音频会话约 15 分钟上限。代价：每场 5 次重连开销；收益：用户永远感知不到断点。</p></div>
+    <div class="a"><div class="h"><em>ADR-05</em>纪要不写没有原文引用的内容</div><p>依据：会议纪要一旦写错，纠正成本远高于漏写。代价：纪要略「薄」；收益：每条都能点回去核对。</p></div>
+    <div class="a"><div class="h"><em>ADR-06</em>低置信待办不自动写日历</div><p>依据：误建日程会污染他人日历。代价：需要用户手动确认；收益：不会制造「幽灵会议」。</p></div>
+    <div class="a"><div class="h"><em>ADR-07</em>如实告知「语音片段上云」</div><p>依据：云翻译的物理事实 + 企业合规要求。代价：叙事不如「全程本地」漂亮；收益：经得起法务与客户安全评审。</p></div>
+  </div>
+</section>
+</div>
+<footer>POC 方向 04 · 跨语言会议官 · 工程技术方案 v2 · 2026-10-21<br>接口与设备能力核对时间：2026-10-21 · 企业部署需补充 DPA 与数据处理区域说明</footer>
+</body>
+</html>

@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>「预演引擎」POC 方案 · 内部评审</title>
+<style>
+  :root{
+    --bg:#070B14;
+    --bg2:#0B1120;
+    --card:#0F1526;
+    --card2:#121A2E;
+    --line:rgba(255,255,255,.08);
+    --line2:rgba(255,255,255,.14);
+    --txt:#F2F5FA;
+    --sub:#98A4BC;
+    --faint:#5D6B87;
+    --blue:#5B8CFF;
+    --blue-deep:#1428A0;
+    --cyan:#3EE0C4;
+    --orange:#FF9F43;
+    --green:#4ADE80;
+    --radius:20px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:"PingFang SC","HarmonyOS Sans SC","MiSans","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:rgba(91,140,255,.35)}
+
+  /* progress bar */
+  #progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:99;
+    background:linear-gradient(90deg,var(--blue),var(--cyan))}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+
+  /* reveal animation */
+  .rv{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.3,1),transform .8s cubic-bezier(.2,.7,.3,1)}
+  .rv.on{opacity:1;transform:none}
+
+  /* ============ HERO ============ */
+  header{
+    position:relative;padding:96px 0 72px;overflow:hidden;
+  }
+  .glow{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none}
+  .glow.a{width:640px;height:640px;background:rgba(20,40,160,.35);top:-220px;left:-160px}
+  .glow.b{width:520px;height:520px;background:rgba(62,224,196,.10);top:40px;right:-200px}
+  .glow.c{width:420px;height:420px;background:rgba(91,140,255,.12);bottom:-260px;left:38%}
+  .hero-grid{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;letter-spacing:.18em;
+    color:var(--cyan);border:1px solid rgba(62,224,196,.35);border-radius:999px;
+    padding:6px 16px;margin-bottom:26px;background:rgba(62,224,196,.06)}
+  .eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  h1{font-size:64px;line-height:1.12;font-weight:800;letter-spacing:.01em}
+  h1 .en{display:block;font-size:22px;font-weight:600;letter-spacing:.34em;color:var(--faint);margin-top:14px;text-transform:uppercase}
+  .slogan{margin:26px 0 30px;font-size:19px;color:var(--sub);max-width:520px}
+  .slogan b{color:var(--txt);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{font-size:13px;color:#C9D4EA;background:var(--card);border:1px solid var(--line2);
+    border-radius:999px;padding:7px 16px;display:inline-flex;align-items:center;gap:7px}
+  .chip b{color:var(--blue);font-weight:600}
+
+  /* hero visual: sentence -> future */
+  .hero-visual{position:relative;height:340px;display:flex;align-items:center;justify-content:center}
+  .hv-bubble{background:var(--card2);border:1px solid var(--line2);border-radius:18px 18px 18px 4px;
+    padding:16px 20px;font-size:15px;max-width:210px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+  .hv-bubble .who{font-size:11px;color:var(--faint);margin-bottom:6px;letter-spacing:.1em}
+  .hv-arc{flex:1;height:2px;position:relative;margin:0 6px;
+    background:linear-gradient(90deg,rgba(91,140,255,0),var(--blue),rgba(62,224,196,0))}
+  .hv-arc::after{content:"";position:absolute;top:-3px;left:0;width:8px;height:8px;border-radius:50%;
+    background:var(--cyan);box-shadow:0 0 14px var(--cyan);animation:fly 2.6s ease-in-out infinite}
+  @keyframes fly{0%{left:0}50%{left:calc(100% - 8px)}100%{left:0}}
+  .hv-future{width:150px;height:190px;border-radius:16px;position:relative;overflow:hidden;
+    border:1px solid rgba(62,224,196,.3);box-shadow:0 24px 60px rgba(62,224,196,.14)}
+  .hv-future .sky{position:absolute;inset:0;
+    background:linear-gradient(180deg,#FFB35C 0%,#FF7E5F 26%,#3B6FF5 55%,#0B2A6B 100%)}
+  .hv-future .sun{position:absolute;top:34px;left:50%;transform:translateX(-50%);
+    width:34px;height:34px;border-radius:50%;background:#FFE9B8;box-shadow:0 0 30px 8px rgba(255,233,184,.55)}
+  .hv-future .sea{position:absolute;left:0;right:0;bottom:0;height:42%;
+    background:linear-gradient(180deg,#1B4F9E,#0A2B63)}
+  .hv-future .tent{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);width:0;height:0;
+    border-left:22px solid transparent;border-right:22px solid transparent;border-bottom:26px solid #12233F}
+  .hv-future .tag{position:absolute;bottom:10px;left:12px;right:12px;font-size:10px;color:#DCE7FF;
+    letter-spacing:.08em;display:flex;justify-content:space-between}
+
+  /* ============ SECTIONS ============ */
+  section{padding:72px 0 8px}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:40px}
+  .sec-no{font-size:15px;color:var(--blue);font-weight:700;letter-spacing:.2em}
+  .sec-head h2{font-size:34px;font-weight:800;letter-spacing:.01em}
+  .sec-head .sub{margin-left:auto;font-size:13px;color:var(--faint);letter-spacing:.06em}
+
+  /* insight cards */
+  .insight{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .icard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 26px;position:relative;overflow:hidden;transition:transform .35s,border-color .35s}
+  .icard:hover{transform:translateY(-5px);border-color:rgba(91,140,255,.4)}
+  .icard .num{font-size:13px;font-weight:700;color:var(--blue);letter-spacing:.2em;margin-bottom:14px}
+  .icard h3{font-size:19px;margin-bottom:10px}
+  .icard p{font-size:14px;color:var(--sub)}
+  .icard .kw{color:var(--cyan);font-weight:600}
+  .icard::after{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(91,140,255,.5),transparent)}
+
+  /* concept flow */
+  .flow{display:grid;grid-template-columns:1fr 46px 1fr 46px 1fr;gap:0;align-items:stretch}
+  .fstep{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 26px;position:relative}
+  .fstep .fi{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.35);margin-bottom:18px}
+  .fstep h3{font-size:19px;margin-bottom:6px}
+  .fstep .en{font-size:11px;color:var(--faint);letter-spacing:.16em;margin-bottom:12px;text-transform:uppercase}
+  .fstep p{font-size:14px;color:var(--sub)}
+  .farrow{display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:22px}
+  .fstep.hot{border-color:rgba(62,224,196,.4);background:linear-gradient(180deg,rgba(62,224,196,.07),var(--card))}
+  .fstep.hot .fi{background:rgba(62,224,196,.1);border-color:rgba(62,224,196,.4)}
+
+  /* scenarios */
+  .scn{background:var(--card);border:1px solid var(--line);border-radius:24px;
+    padding:38px;margin-bottom:26px}
+  .scn-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+  .scn-tag{font-size:12px;font-weight:700;letter-spacing:.14em;padding:5px 14px;border-radius:999px}
+  .scn-tag.t1{color:#8FB4FF;background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.35)}
+  .scn-tag.t2{color:#7FE8D2;background:rgba(62,224,196,.10);border:1px solid rgba(62,224,196,.35)}
+  .scn-tag.t3{color:#FFC48A;background:rgba(255,159,67,.10);border:1px solid rgba(255,159,67,.35)}
+  .scn-head h3{font-size:24px}
+  .scn-persona{font-size:13px;color:var(--faint);margin-left:auto}
+  .scn-story{font-size:15px;color:var(--sub);max-width:760px}
+  .scn-story b{color:var(--txt)}
+  .scn-egg{margin-top:16px;font-size:13px;color:var(--cyan);display:flex;gap:8px;align-items:flex-start}
+  .scn-egg::before{content:"◆";font-size:10px;margin-top:5px}
+
+  /* phone mock */
+  .phone-zone{display:grid;grid-template-columns:300px 1fr;gap:44px;align-items:center;margin-top:28px}
+  .phone{width:300px;height:600px;background:#151B2B;border-radius:44px;padding:10px;
+    border:1px solid #2A3348;box-shadow:0 40px 90px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.03);
+    position:relative}
+  .phone .screen{width:100%;height:100%;background:#0A0F1E;border-radius:36px;overflow:hidden;
+    display:flex;flex-direction:column;position:relative}
+  .notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:84px;height:22px;
+    background:#151B2B;border-radius:999px;z-index:5}
+  .statusbar{display:flex;justify-content:space-between;padding:14px 22px 6px;font-size:11px;color:#8E9BB3}
+  .chat{flex:1;padding:10px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+  .msg{max-width:82%;font-size:12.5px;line-height:1.55;padding:9px 13px;border-radius:15px;
+    opacity:0;transform:translateY(10px);transition:all .45s cubic-bezier(.2,.8,.3,1)}
+  .msg.show{opacity:1;transform:none}
+  .msg.user{align-self:flex-end;background:linear-gradient(135deg,#3B6FF5,#2E56D6);color:#fff;
+    border-radius:15px 15px 4px 15px}
+  .msg.ai{align-self:flex-start;background:#161E33;border:1px solid var(--line2);color:#D5DEF0;
+    border-radius:15px 15px 15px 4px}
+  .msg .who{font-size:9px;color:var(--faint);letter-spacing:.12em;margin-bottom:4px}
+  .typing{display:flex;gap:5px;padding:4px 2px}
+  .typing i{width:6px;height:6px;border-radius:50%;background:#5B8CFF;animation:blink 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+  .video-card{align-self:flex-start;width:96%;border-radius:16px;overflow:hidden;border:1px solid rgba(62,224,196,.35);
+    opacity:0;transform:scale(.92);transition:all .55s cubic-bezier(.2,.8,.3,1)}
+  .video-card.show{opacity:1;transform:none}
+  .video-card .frame{height:128px;position:relative;overflow:hidden;
+    background:linear-gradient(180deg,#FFB35C 0%,#FF7E5F 24%,#3B6FF5 52%,#0B2A6B 100%)}
+  .video-card .sun{position:absolute;top:26px;left:50%;transform:translateX(-50%);width:26px;height:26px;
+    border-radius:50%;background:#FFE9B8;box-shadow:0 0 22px 7px rgba(255,233,184,.5)}
+  .video-card .sea{position:absolute;left:0;right:0;bottom:0;height:38%;background:linear-gradient(180deg,#1B4F9E,#0A2B63)}
+  .video-card .wave{position:absolute;left:0;right:0;bottom:30%;height:8px;
+    background:repeating-linear-gradient(90deg,rgba(255,255,255,.25) 0 14px,transparent 14px 28px);
+    filter:blur(1px);animation:wave 3s linear infinite}
+  @keyframes wave{to{background-position:28px 0}}
+  .video-card .tent{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);width:0;height:0;
+    border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:19px solid #12233F}
+  .video-card .tl{position:absolute;top:8px;left:10px;font-size:9px;color:#fff;background:rgba(0,0,0,.4);
+    border-radius:999px;padding:3px 9px;letter-spacing:.06em}
+  .video-card .cap{background:#0D1526;padding:9px 12px;font-size:10.5px;color:#9FE8DA;letter-spacing:.04em;
+    display:flex;justify-content:space-between}
+  .btnrow{display:flex;gap:8px;margin-top:10px;opacity:0;transition:all .4s;justify-content:flex-end}
+  .btnrow.show{opacity:1}
+  .pbtn{font-size:11px;padding:6px 14px;border-radius:999px;border:1px solid var(--line2);
+    background:transparent;color:#C9D4EA}
+  .pbtn.primary{background:linear-gradient(135deg,#3B6FF5,#2E56D6);border-color:transparent;color:#fff}
+  .exec-card{margin:10px 14px 16px;background:#0D1526;border:1px solid rgba(74,222,128,.28);
+    border-radius:14px;padding:12px 14px;opacity:0;transform:translateY(8px);transition:all .45s}
+  .exec-card.show{opacity:1;transform:none}
+  .exec-card .t{font-size:10px;color:var(--green);letter-spacing:.14em;margin-bottom:8px}
+  .exec-item{display:flex;align-items:center;gap:8px;font-size:11.5px;color:#C9D4EA;padding:3px 0}
+  .exec-item .ck{width:14px;height:14px;border-radius:50%;border:1px solid rgba(74,222,128,.5);
+    display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:var(--green);
+    opacity:0;transition:all .3s}
+  .exec-item .ck.on{opacity:1;background:rgba(74,222,128,.15)}
+
+  .scn-notes h4{font-size:15px;margin-bottom:16px;color:var(--txt)}
+  .scn-notes ul{list-style:none}
+  .scn-notes li{font-size:14px;color:var(--sub);padding:9px 0 9px 22px;position:relative;
+    border-bottom:1px dashed var(--line)}
+  .scn-notes li:last-child{border-bottom:none}
+  .scn-notes li::before{content:"→";position:absolute;left:0;color:var(--blue)}
+  .scn-notes li b{color:var(--txt)}
+
+  /* architecture */
+  .arch{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:38px}
+  .arch-row{display:grid;grid-template-columns:1fr 60px 1.3fr 60px 1fr;gap:0;align-items:center}
+  .arch-col h4{font-size:14px;letter-spacing:.16em;margin-bottom:16px;color:var(--faint)}
+  .arch-box{background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:12px 16px;
+    font-size:13.5px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .arch-box .dot{width:8px;height:8px;border-radius:50%;flex:none}
+  .arch-box small{display:block;font-size:11px;color:var(--faint);margin-top:2px}
+  .arch-link{display:flex;align-items:center;justify-content:center}
+  .arch-link svg{overflow:visible}
+  .arch-core{background:linear-gradient(180deg,rgba(91,140,255,.10),rgba(62,224,196,.05));
+    border:1px solid rgba(91,140,255,.4);border-radius:16px;padding:16px;margin-bottom:10px}
+  .arch-core .mname{font-size:15px;font-weight:700}
+  .arch-core .mdesc{font-size:12px;color:var(--sub);margin-top:3px}
+  .arch-foot{margin-top:26px;padding-top:20px;border-top:1px dashed var(--line2);
+    display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--sub)}
+  .arch-foot .lock{flex:none;width:34px;height:34px;border-radius:10px;background:rgba(74,222,128,.1);
+    border:1px solid rgba(74,222,128,.35);display:flex;align-items:center;justify-content:center}
+
+  /* timeline */
+  .tl{position:relative;padding-left:34px}
+  .tl::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;
+    background:linear-gradient(180deg,var(--blue),var(--cyan))}
+  .tl-item{position:relative;padding:0 0 34px 22px}
+  .tl-item:last-child{padding-bottom:6px}
+  .tl-item::before{content:"";position:absolute;left:-32px;top:6px;width:20px;height:20px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--blue);box-shadow:0 0 14px rgba(91,140,255,.5)}
+  .tl-item:last-child::before{border-color:var(--cyan);box-shadow:0 0 14px rgba(62,224,196,.5)}
+  .tl-week{font-size:12px;font-weight:700;letter-spacing:.2em;color:var(--blue)}
+  .tl-item:last-child .tl-week{color:var(--cyan)}
+  .tl-item h3{font-size:19px;margin:4px 0 8px}
+  .tl-item ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+  .tl-item li{font-size:12.5px;color:var(--sub);background:var(--card);border:1px solid var(--line);
+    border-radius:999px;padding:4px 14px}
+
+  /* metrics */
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .mcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px;
+    transition:transform .35s,border-color .35s}
+  .mcard:hover{transform:translateY(-5px);border-color:rgba(62,224,196,.4)}
+  .mcard .mi{font-size:12px;letter-spacing:.16em;color:var(--faint);margin-bottom:12px}
+  .mcard h3{font-size:17px;margin-bottom:10px}
+  .mcard .val{font-size:30px;font-weight:800;
+    background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent}
+  .mcard p{font-size:12.5px;color:var(--sub);margin-top:8px}
+
+  /* risks */
+  .risks{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .rcard{background:var(--card);border:1px solid rgba(255,159,67,.25);border-radius:var(--radius);padding:26px 24px}
+  .rcard .ri{font-size:20px;margin-bottom:12px}
+  .rcard h3{font-size:16px;margin-bottom:8px}
+  .rcard p{font-size:13px;color:var(--sub)}
+  .rcard .fix{margin-top:12px;font-size:12px;color:var(--green);display:flex;gap:6px}
+  .rcard .fix::before{content:"✓"}
+
+  /* team & footer */
+  .team{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:8px}
+  .tcard{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:22px;text-align:center}
+  .tcard .n{font-size:26px;font-weight:800;color:var(--blue)}
+  .tcard .r{font-size:13px;margin-top:4px}
+  .tcard .d{font-size:11.5px;color:var(--faint);margin-top:4px}
+  footer{margin-top:80px;padding:44px 0 56px;border-top:1px solid var(--line);text-align:center}
+  footer .f1{font-size:20px;font-weight:700}
+  footer .f1 span{background:linear-gradient(90deg,var(--blue),var(--cyan));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  footer .f2{font-size:13px;color:var(--faint);margin-top:10px}
+
+  @media (max-width:960px){
+    .hero-grid,.phone-zone,.arch-row{grid-template-columns:1fr}
+    .insight,.metrics,.risks,.team{grid-template-columns:repeat(2,1fr)}
+    .flow{grid-template-columns:1fr}
+    .farrow{transform:rotate(90deg);padding:8px 0}
+    h1{font-size:44px}
+    .arch-link{transform:rotate(90deg);padding:10px 0}
+    .hero-visual{height:260px}
+  }
+  @media print{
+    body{background:#fff;color:#111}
+    .glow,#progress{display:none}
+    .rv{opacity:1;transform:none}
+    .icard,.fstep,.scn,.arch,.mcard,.rcard,.tcard,.hv-bubble{background:#fff;border-color:#ddd}
+    h1,h2,h3,.mcard .val{color:#1428A0;-webkit-text-fill-color:#1428A0}
+    .sub,.slogan,.icard p,.fstep p,.scn-story,.mcard p,.rcard p{color:#444}
+    .phone{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<!-- ================= HERO ================= -->
+<header>
+  <div class="glow a"></div><div class="glow b"></div><div class="glow c"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><i></i>SAMSUNG GALAXY POC · 内部评审</div>
+      <h1>预演引擎<span class="en">Rehearsal Engine</span></h1>
+      <p class="slogan">说一句话，AI 用<b>世界模型</b>为你「彩排」一次未来场景；你确认后，<b>整个 Galaxy 生态自动替你安排好</b>。</p>
+      <div class="chips">
+        <div class="chip">📱 载体 <b>Galaxy S26 Ultra</b>（One UI 9）</div>
+        <div class="chip">🧠 核心 <b>Gemini Omni 世界模型</b></div>
+        <div class="chip">⏱ <b>4 周</b>可演示</div>
+        <div class="chip">👥 <b>2.5 人月</b>小团队</div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hv-bubble">
+        <div class="who">周五 · 22:14</div>
+        「明天带朵朵去海边露营 ⛺」
+      </div>
+      <div class="hv-arc"></div>
+      <div class="hv-future">
+        <div class="sky"></div><div class="sun"></div><div class="sea"></div><div class="tent"></div>
+        <div class="tag"><span>07:00 装车</span><span>14:30 退潮</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 01 洞察 ================= -->
+<section class="wrap">
+  <div class="sec-head rv"><span class="sec-no">01</span><h2>为什么是现在，为什么是它</h2><span class="sub">WHY NOW / WHY US</span></div>
+  <div class="insight">
+    <div class="icard rv">
+      <div class="num">技术质变</div>
+      <h3>AI 第一次能「模拟现实」</h3>
+      <p>2026 年世界模型（Gemini Omni，Google I/O 2026 发布）可在单一架构内生成<span class="kw">物理一致</span>的多模态场景——AI 给的不再是文字清单，而是一段「你未来的模拟影片」。</p>
+    </div>
+    <div class="icard rv">
+      <div class="num">用户痛点</div>
+      <h3>人类做计划，全靠脑补</h3>
+      <p>露营风多大？8 人宴客厅怎么摆？计划永远停在清单层面，执行阶段才暴露问题。用户缺的不是待办 App，而是<span class="kw">「先看一遍未来」</span>。</p>
+    </div>
+    <div class="icard rv">
+      <div class="num">生态独占</div>
+      <h3>闭环只有 Galaxy 能合上</h3>
+      <p>预演引擎要同时调动<span class="kw">旗舰算力 + 全屋设备（SmartThings 4.3 亿用户）+ 穿戴 + 电视家电</span>。软件公司做不了落地，硬件公司做不了世界模型——这是三星生态的独占位。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 概念 ================= -->
+<section class="wrap">
+  <div class="sec-head rv"><span class="sec-no">02</span><h2>概念：三步，从想法到就绪</h2><span class="sub">HOW IT WORKS</span></div>
+  <div class="flow">
+    <div class="fstep rv">
+      <div class="fi">💬</div>
+      <div class="en">Step 1 · Say</div>
+      <h3>说一句话</h3>
+      <p>对 Galaxy S26 Ultra 说出意图：「明天带朵朵去海边露营」。端侧模型先做意图理解，个人数据不出设备。</p>
+    </div>
+    <div class="farrow rv">→</div>
+    <div class="fstep hot rv">
+      <div class="fi">🎬</div>
+      <div class="en">Step 2 · Rehearse</div>
+      <h3>看一次「未来彩排」</h3>
+      <p>世界模型结合天气、日历、历史偏好与家中设备状态，生成一段可交互的第一人称预演影片，并预判风险（风级、装备遗漏、时间窗口）。</p>
+    </div>
+    <div class="farrow rv">→</div>
+    <div class="fstep rv">
+      <div class="fi">⚡</div>
+      <div class="en">Step 3 · Done</div>
+      <h3>一句话，全生态就位</h3>
+      <p>你说「就这样」——后台智能体自动落地：日历、购物车、手表提醒、洗烘预约、电视播放列表，全部就绪。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 场景 ================= -->
+<section class="wrap">
+  <div class="sec-head rv"><span class="sec-no">03</span><h2>三个具体使用场景</h2><span class="sub">USER STORIES</span></div>
+
+  <!-- 场景 A -->
+  <div class="scn rv">
+    <div class="scn-head">
+      <span class="scn-tag t1">场景 A · 主打演示</span>
+      <h3>周末海边露营</h3>
+      <span class="scn-persona">家庭用户 · 阿哲 &amp; 女儿朵朵（6 岁）</span>
+    </div>
+    <p class="scn-story">周五 22:14，阿哲对 Galaxy S26 Ultra 说：<b>「明天带朵朵去海边露营」</b>。23 秒后，一段第一人称预演影片出现：早 7 点装车、营地风力 3 级、14:30 退潮是朵朵捡贝壳的最佳时段。<b>影片里天幕是湿的</b>——AI 记得上周露营淋了雨，已自动把 Bespoke 洗烘的空气洗程序预约到凌晨 2 点。阿哲指着画面说「风太大，换个湾内营地」，8 秒后新影片重新生成。「就这样」——日历、闹钟、木炭冰块采购、营灯充电提醒全部落位。周六现场，一切就绪。</p>
+    <div class="phone-zone">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>22:14</span><span>5G ▮▮▮ 100%</span></div>
+          <div class="chat">
+            <div class="msg user" id="m1">明天带朵朵去海边露营 ⛺</div>
+            <div class="msg ai" id="m2"><div class="who">GEMINI</div><div class="typing"><i></i><i></i><i></i></div></div>
+            <div class="video-card" id="m3">
+              <div class="frame">
+                <div class="sun"></div><div class="wave"></div><div class="sea"></div><div class="tent"></div>
+                <div class="tl">● 预演影片 · 周六</div>
+              </div>
+              <div class="cap"><span>07:00 装车</span><span>风力 3 级</span><span>14:30 退潮</span></div>
+            </div>
+            <div class="msg ai" id="m4">⚠️ 天幕未烘干，已预约 Bespoke 凌晨空气洗<br>🌬 风力 3 级，湾内营地更稳妥</div>
+            <div class="btnrow" id="m5">
+              <button class="pbtn">换个营地</button>
+              <button class="pbtn primary">就这样 ✓</button>
+            </div>
+          </div>
+          <div class="exec-card" id="m6">
+            <div class="t">✓ 已自动安排</div>
+            <div class="exec-item"><span class="ck">✓</span>日历：周六家庭行程</div>
+            <div class="exec-item"><span class="ck">✓</span>购物车：木炭 / 冰块</div>
+            <div class="exec-item"><span class="ck">✓</span>Watch8：6:30 闹钟 + 行程卡</div>
+            <div class="exec-item"><span class="ck">✓</span>营灯充电提醒（今晚）</div>
+          </div>
+        </div>
+      </div>
+      <div class="scn-notes">
+        <h4>这个场景在演示什么</h4>
+        <ul>
+          <li><b>跨设备记忆</b>：AI 记得「上周天幕淋过雨」——只有生态内多设备数据融合才能做到</li>
+          <li><b>风险预判</b>：风力、紫外线、潮汐时间，在出发前就摆在桌面上</li>
+          <li><b>对话式修改</b>：指着画面说「换个营地」，影片 8 秒重生，而非重新输一遍需求</li>
+          <li><b>一键闭环</b>：确认后 4 类执行自动落位，任务步数从约 12 步降到 2 步</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 场景 B -->
+  <div class="scn rv">
+    <div class="scn-head">
+      <span class="scn-tag t2">场景 B</span>
+      <h3>8 人生日宴，一个人的家</h3>
+      <span class="scn-persona">独居用户 · 设计师小林</span>
+    </div>
+    <p class="scn-story">周三，小林说：<b>「周六在家办生日宴，8 个人」</b>。预演影片里，AI 用 <b>Jet Bot 建图数据</b>还原了她家真实户型，模拟 8 人聚餐的桌椅动线（「沙发需右移 40cm，动线才顺」），并按 Family Hub 冰箱现有食材给出菜单——「牛排只剩 2 块，已加入补货 4 块」。确认后：购物清单同步、周六 15:00「开始预热烤箱」提醒、Neo QLED 电视自动排好生日歌单、Vision AI Companion 负责当天氛围灯联动。</p>
+    <div class="scn-egg">技术彩蛋：户型动线数据来自扫地机器人建图——这是其他厂商抄不走的独有数据源</div>
+  </div>
+
+  <!-- 场景 C -->
+  <div class="scn rv">
+    <div class="scn-head">
+      <span class="scn-tag t3">场景 C</span>
+      <h3>父母第一次来同住三天</h3>
+      <span class="scn-persona">异地工作的儿子 · 阿伟</span>
+    </div>
+    <p class="scn-story">阿伟对手机说：<b>「爸妈下周来住三天」</b>。基于家人过往的习惯档案（爸爸起夜、妈妈低盐饮食），预演引擎生成「关怀清单」：走廊夜灯 22:00–6:00 自动调至 15%、冰箱按低盐原则推荐三天菜单、电视默认大字体简洁界面。确认后，全屋自动生成「父母来访模式」场景预设——阿伟不在家，也能远程确认一切就绪。</p>
+    <div class="scn-egg">边界说明：仅使用家人已授权的习惯档案，不采集任何实时健康数据，合规风险前置规避</div>
+  </div>
+</section>
+
+<!-- ================= 04 技术架构 ================= -->
+<section class="wrap">
+  <div class="sec-head rv"><span class="sec-no">04</span><h2>技术架构：全部基于已发布能力</h2><span class="sub">ARCHITECTURE</span></div>
+  <div class="arch rv">
+    <div class="arch-row">
+      <div class="arch-col">
+        <h4>感知层 · GALAXY 设备</h4>
+        <div class="arch-box"><span class="dot" style="background:var(--blue)"></span><div>Galaxy S26 Ultra<small>语音 / 屏幕 / 摄像头</small></div></div>
+        <div class="arch-box"><span class="dot" style="background:var(--blue)"></span><div>Galaxy Watch8<small>健康与作息上下文</small></div></div>
+        <div class="arch-box"><span class="dot" style="background:var(--blue)"></span><div>Bespoke 洗烘 / 冰箱<small>设备状态与使用数据</small></div></div>
+        <div class="arch-box"><span class="dot" style="background:var(--blue)"></span><div>Jet Bot / Neo QLED<small>户型建图 / 大屏入口</small></div></div>
+      </div>
+      <div class="arch-link">
+        <svg width="56" height="14"><line x1="0" y1="7" x2="56" y2="7" stroke="#5B8CFF" stroke-width="2" stroke-dasharray="5 5"/></svg>
+      </div>
+      <div class="arch-col">
+        <h4>智能层 · GEMINI（均已开放 API）</h4>
+        <div class="arch-core"><div class="mname">Gemini 3.5 Flash</div><div class="mdesc">意图理解 · 任务规划（端云协同）</div></div>
+        <div class="arch-core"><div class="mname">Gemini Omni · 世界模型</div><div class="mdesc">预演影片生成 · 物理一致场景模拟</div></div>
+        <div class="arch-core"><div class="mname">Gemini Spark · 后台智能体</div><div class="mdesc">经 MCP 协议跨 App 执行落地</div></div>
+      </div>
+      <div class="arch-link">
+        <svg width="56" height="14"><line x1="0" y1="7" x2="56" y2="7" stroke="#3EE0C4" stroke-width="2" stroke-dasharray="5 5"/></svg>
+      </div>
+      <div class="arch-col">
+        <h4>执行层 · 自动落位</h4>
+        <div class="arch-box"><span class="dot" style="background:var(--cyan)"></span><div>日历 / 闹钟 / Now Brief<small>三星原生应用</small></div></div>
+        <div class="arch-box"><span class="dot" style="background:var(--cyan)"></span><div>SmartThings 场景预设<small>全屋设备联动</small></div></div>
+        <div class="arch-box"><span class="dot" style="background:var(--cyan)"></span><div>购物车 / 提醒<small>经 MCP 打通服务</small></div></div>
+        <div class="arch-box"><span class="dot" style="background:var(--cyan)"></span><div>Bespoke 程序预约<small>家电直控</small></div></div>
+      </div>
+    </div>
+    <div class="arch-foot">
+      <div class="lock">🔒</div>
+      <div><b style="color:var(--txt)">隐私边界：</b>个人数据经 Personal Data Engine 端侧加密处理，敏感数据可选择本地推理；真实数据仅限明示授权的种子账号，评审演示数据全程脱敏；健康类数据不进入 POC 范围。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 计划 ================= -->
+<section class="wrap">
+  <div class="sec-head rv"><span class="sec-no">05</span><h2>4 周执行计划（小团队）</h2><span class="sub">ROADMAP</span></div>
+  <div class="tl">
+    <div class="tl-item rv">
+      <div class="tl-week">WEEK 1</div>
+      <h3>场景收敛 + 技术验证</h3>
+      <ul><li>锁定场景 A / B 为演示主线</li><li>验证 Omni 影片生成延迟与可控性基线</li><li>申请 1 个种子账号（S26 Ultra + Watch8 + Bespoke 全家桶）真实数据授权</li></ul>
+    </div>
+    <div class="tl-item rv">
+      <div class="tl-week">WEEK 2</div>
+      <h3>核心链路：一句话 → 预演影片</h3>
+      <ul><li>语音输入 → 意图理解 → 影片生成跑通</li><li>「换个营地」对话式修改可用</li><li>场景 A 端到端首次内部演示</li></ul>
+    </div>
+    <div class="tl-item rv">
+      <div class="tl-week">WEEK 3</div>
+      <h3>执行闭环 + 第二场景</h3>
+      <ul><li>Spark 智能体接入日历 / 购物车 / SmartThings</li><li>场景 B：Jet Bot 建图动线模拟</li><li>Now Brief 行程卡片上线</li></ul>
+    </div>
+    <div class="tl-item rv">
+      <div class="tl-week">WEEK 4</div>
+      <h3>打磨 + 内部评审</h3>
+      <ul><li>10 人种子用户测试 + 指标基线报告</li><li>评审会现场演示（含脱敏数据 + 1 真实授权账号）</li><li>输出二期范围建议（是否扩场景 C 及更多品类）</li></ul>
+    </div>
+  </div>
+  <div class="team">
+    <div class="tcard rv"><div class="n">1</div><div class="r">全栈工程师</div><div class="d">App 端 + API 编排</div></div>
+    <div class="tcard rv"><div class="n">1</div><div class="r">算法工程师</div><div class="d">提示词工程 + 生成约束</div></div>
+    <div class="tcard rv"><div class="n">1</div><div class="r">产品经理</div><div class="d">场景设计 + 测试组织</div></div>
+    <div class="tcard rv"><div class="n">0.5</div><div class="r">设计师</div><div class="d">界面与演示视觉</div></div>
+  </div>
+</section>
+
+<!-- ================= 06 指标 ================= -->
+<section class="wrap">
+  <div class="sec-head rv"><span class="sec-no">06</span><h2>内部评审验收标准</h2><span class="sub">SUCCESS METRICS</span></div>
+  <div class="metrics">
+    <div class="mcard rv">
+      <div class="mi">演示可靠性</div>
+      <h3>端到端跑通</h3>
+      <div class="val">≥ 90%</div>
+      <p>预演生成 &lt; 30s（P90），对话式重生成 &lt; 10s</p>
+    </div>
+    <div class="mcard rv">
+      <div class="mi">用户价值</div>
+      <h3>愿不愿意再用</h3>
+      <div class="val">≥ 80%</div>
+      <p>10 人种子用户「愿意再次使用」比例；任务步数 12 → 2</p>
+    </div>
+    <div class="mcard rv">
+      <div class="mi">生态验证</div>
+      <h3>生态独占性</h3>
+      <div class="val">≥ 3 台</div>
+      <p>单次任务平均联动设备数，证明闭环长在生态上</p>
+    </div>
+    <div class="mcard rv">
+      <div class="mi">惊艳程度</div>
+      <h3>评审会盲投</h3>
+      <div class="val">现场投票</div>
+      <p>评委盲投「最想看到二期投入的方案」</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 07 风险 ================= -->
+<section class="wrap">
+  <div class="sec-head rv"><span class="sec-no">07</span><h2>风险与边界（已前置）</h2><span class="sub">RISKS</span></div>
+  <div class="risks">
+    <div class="rcard rv">
+      <div class="ri">🎲</div>
+      <h3>世界模型生成不可控</h3>
+      <p>开放式视频生成可能出现物理错误或跑题画面，影响演示稳定性。</p>
+      <div class="fix">模板化提示词约束 + 规则后处理，POC 不追求开放式生成</div>
+    </div>
+    <div class="rcard rv">
+      <div class="ri">🔒</div>
+      <h3>真实数据合规</h3>
+      <p>使用真实用户数据涉及授权与隐私审查，内部评审亦有泄露面。</p>
+      <div class="fix">种子账号明示授权；敏感数据端侧处理；演示默认脱敏</div>
+    </div>
+    <div class="rcard rv">
+      <div class="ri">🏠</div>
+      <h3>建图数据依赖</h3>
+      <p>场景 B 的动线模拟依赖 Jet Bot 建图，无建图设备家庭无法体验。</p>
+      <div class="fix">降级方案：通用户型模板 + 手动标注，不影响主线演示</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="f1">让计划<span>先被看见</span>，再让生态<span>自动就位</span>。</div>
+  <div class="f2">「预演引擎」POC 方案 · 内部评审专用 · 2026-10 · 基于 Galaxy S26 Ultra / One UI 9 / Gemini 已发布能力</div>
+</footer>
+
+<script>
+  // scroll progress
+  window.addEventListener('scroll',()=>{
+    const h=document.documentElement;
+    document.getElementById('progress').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  },{passive:true});
+
+  // reveal on scroll
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}});
+  },{threshold:.12});
+  document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+  // phone demo sequence
+  const seq=[
+    {el:'m1',t:600},{el:'m2',t:1200},{el:'m3',t:2300},{el:'m4',t:3000},
+    {el:'m5',t:3500},{el:'m6',t:4100}
+  ];
+  function playPhone(){
+    ['m1','m2','m3','m4','m5','m6'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.classList.remove('show');
+        if(id==='m2')el.innerHTML='<div class="who">GEMINI</div><div class="typing"><i></i><i></i><i></i></div>';}
+    });
+    document.querySelectorAll('.exec-item .ck').forEach(c=>c.classList.remove('on'));
+    seq.forEach(s=>setTimeout(()=>{
+      const el=document.getElementById(s.el);
+      if(!el)return;
+      if(s.el==='m2')el.innerHTML='<div class="who">GEMINI</div>正在为你彩排周六的露营…';
+      el.classList.add('show');
+      if(s.el==='m6'){
+        document.querySelectorAll('.exec-item .ck').forEach((c,i)=>setTimeout(()=>c.classList.add('on'),i*260));
+      }
+    },s.t));
+  }
+  const phone=document.querySelector('.phone');
+  let played=false;
+  const pio=new IntersectionObserver(es=>{
+    es.forEach(e=>{if(e.isIntersecting&&!played){played=true;playPhone();}});
+  },{threshold:.3});
+  if(phone)pio.observe(phone);
+</script>
+</body>
+</html>
