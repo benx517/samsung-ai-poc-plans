@@ -15,6 +15,14 @@
 
 文字版：`poc-1-rehearsal-engine.md` … `poc-6-field-copilot.md`
 
+## 行业调研
+
+| 主题 | 文件 | 内容 |
+|---|---|---|
+| 国内智能眼镜 × IoT / 智能家居联动 | [HTML](research-cn-glasses-iot.html) · [Markdown](research-cn-glasses-iot.md) | 小米 / 华为 / 千问 / 雷鸟 / Rokid / INMO 等六家的联动路径与边界；L0–L3 能力模型；四条技术路径；对三星 Galaxy Glasses 的三条判断与一个 4 周 POC 建议 |
+
+调研结论摘要：国内只有小米、华为、千问把家居联动做成了产品能力，且都停在 L1（语音遥控）；跨品牌与视觉理解仍是空白。三星不应在中国打「控制」，应打「看懂」。
+
 ## 每份方案的统一结构
 
 1. 概念与主场景

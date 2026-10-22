@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>行业调研 · 国内智能眼镜 × IoT / 智能家居联动</title>
+<style>
+  :root{--bg:#070B14;--card:#0F1526;--card2:#121A2E;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+  --txt:#F2F5FA;--sub:#98A4BC;--faint:#5D6B87;--blue:#5B8CFF;--cyan:#3EE0C4;--orange:#FF9F43;--green:#4ADE80}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:"PingFang SC","HarmonyOS Sans SC","MiSans","Microsoft YaHei",-apple-system,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px}
+  header{padding:60px 0 36px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .glow{position:absolute;width:500px;height:500px;border-radius:50%;filter:blur(100px);background:rgba(20,40,160,.28);top:-240px;left:-140px;pointer-events:none}
+  .eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;letter-spacing:.2em;color:var(--cyan);border:1px solid rgba(62,224,196,.35);border-radius:999px;padding:5px 14px;margin-bottom:20px;background:rgba(62,224,196,.06)}
+  h1{font-size:40px;font-weight:800}
+  h1 .en{display:block;font-size:15px;font-weight:600;letter-spacing:.3em;color:var(--faint);margin-top:8px;text-transform:uppercase}
+  .lead{margin-top:16px;font-size:15.5px;color:var(--sub);max-width:780px}
+  .lead b{color:var(--txt)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .chip{font-size:12px;color:#C9D4EA;background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:5px 14px}
+  .chip b{color:var(--blue)}
+  section{padding:40px 0 4px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .sec-no{font-size:13px;color:var(--blue);font-weight:700;letter-spacing:.2em}
+  .sec-head h2{font-size:23px;font-weight:800}
+  .sec-head .sub{font-size:11.5px;color:var(--faint);letter-spacing:.02em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .card + .card{margin-top:12px}
+  .story{font-size:14px;color:var(--sub)}
+  .story b{color:var(--txt)}
+  .story .hl{color:var(--cyan);font-weight:600}
+  .alt{margin-top:12px;font-size:12.5px;color:var(--faint);border-left:2px solid var(--line2);padding-left:14px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;color:var(--faint);font-weight:600;letter-spacing:.06em;padding:9px 10px;border-bottom:1px solid var(--line2);font-size:11.5px}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--sub);vertical-align:top}
+  td b{color:var(--txt)}
+  td .ok{color:var(--green);font-size:10.5px;border:1px solid rgba(74,222,128,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .wip{color:var(--orange);font-size:10.5px;border:1px solid rgba(255,159,67,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  td .no{color:#FF6B6B;font-size:10.5px;border:1px solid rgba(255,107,107,.35);border-radius:999px;padding:1px 7px;white-space:nowrap}
+  .steps{counter-reset:s;display:flex;flex-direction:column;gap:11px}
+  .step{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:13px;align-items:start}
+  .step::before{content:counter(s,decimal-leading-zero);width:32px;height:32px;border-radius:9px;background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.4);color:var(--blue);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .step .st{font-size:14px;font-weight:700;margin-bottom:2px}
+  .step .st,.step .sd{grid-column:2}
+  .step .sd{font-size:12.5px;color:var(--sub)}
+  .step .sd code,p code,td code,li code{color:var(--cyan);font-size:11.5px;background:rgba(62,224,196,.08);padding:1px 5px;border-radius:5px;font-family:Consolas,monospace}
+  .notes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .note{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .note .nt{font-size:12.5px;font-weight:700;color:var(--cyan);margin-bottom:5px}
+  .note p{font-size:12px;color:var(--sub)}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .mc{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px}
+  .mc .mi{font-size:10.5px;letter-spacing:.14em;color:var(--faint)}
+  .mc .val{font-size:24px;font-weight:800;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:4px 0}
+  .mc p{font-size:11.5px;color:var(--sub)}
+  .risks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .rc{background:var(--card);border:1px solid rgba(255,159,67,.22);border-radius:15px;padding:18px}
+  .rc h3{font-size:13.5px;margin-bottom:5px}
+  .rc p{font-size:11.5px;color:var(--sub)}
+  .rc .fix{margin-top:8px;font-size:11.5px;color:var(--green)}
+  .toc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .toc a{display:flex;gap:9px;font-size:12px;color:var(--sub);text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+  .toc a b{color:var(--blue);font-weight:700}
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;font-size:12.5px}
+  .kv div{padding:7px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px}
+  .kv span{color:var(--faint)}.kv b{color:var(--txt);text-align:right}
+  .callout{border-left:2px solid var(--orange);background:rgba(255,159,67,.06);border-radius:0 11px 11px 0;padding:13px 16px;font-size:12.5px;color:var(--sub);margin-top:12px}
+  .callout b{color:var(--orange)}
+  .callout.good{border-color:var(--green);background:rgba(74,222,128,.06)}
+  .callout.good b{color:var(--green)}
+  .callout.info{border-color:var(--blue);background:rgba(91,140,255,.06)}
+  .callout.info b{color:var(--blue)}
+  .matrix td:first-child{color:var(--txt);font-weight:600;font-size:11.5px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .src{font-size:10.5px;color:var(--faint);margin-top:9px;line-height:1.7}
+  ul.tight{list-style:none;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--sub)}
+  ul.tight li{padding-left:13px;position:relative}
+  ul.tight li::before{content:"—";position:absolute;left:0;color:var(--blue)}
+  h3.bt{font-size:14px;margin:22px 0 10px;color:var(--txt)}
+  h3.bt:first-child{margin-top:0}
+  .vendor{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .vendor h3{font-size:16px}
+  .vendor .tag{font-size:10.5px;color:var(--faint);border:1px solid var(--line2);border-radius:999px;padding:2px 9px}
+  .vendor .tag.a{color:var(--green);border-color:rgba(74,222,128,.35)}
+  .vendor .tag.b{color:var(--orange);border-color:rgba(255,159,67,.35)}
+  .vendor .tag.c{color:#FF6B6B;border-color:rgba(255,107,107,.35)}
+  .ladder{display:flex;flex-direction:column;gap:10px}
+  .lv{display:grid;grid-template-columns:60px 1fr 168px;gap:14px;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:13px 16px}
+  .lv .tag{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--blue)}
+  .lv .nm{font-size:13.5px;font-weight:700}
+  .lv .nm small{display:block;font-weight:400;font-size:11.5px;color:var(--sub);margin-top:2px}
+  .lv .who{font-size:11px;color:var(--faint);text-align:right}
+  .judge{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .jd{background:var(--card2);border:1px solid var(--line2);border-radius:13px;padding:16px}
+  .jd .n{font-size:10.5px;color:var(--blue);letter-spacing:.16em;font-weight:700}
+  .jd h3{font-size:13.5px;margin:6px 0}
+  .jd p{font-size:11.8px;color:var(--sub)}
+  footer{margin-top:52px;padding:28px 0 40px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);text-align:center;line-height:1.9}
+  @media(max-width:900px){.tl,.metrics,.risks,.notes,.toc,.kv,.grid2,.judge{grid-template-columns:1fr}.lv{grid-template-columns:1fr;gap:6px}.lv .who{text-align:left}h1{font-size:29px}}
+</style>
+</head>
+<body>
+<header><div class="glow"></div><div class="wrap">
+  <div class="eyebrow">行业调研 · 智能眼镜 × IoT · 2026-10</div>
+  <h1>眼镜连家<span class="en">Glasses × Smart Home in China</span></h1>
+  <p class="lead">2026 上半年中国智能眼镜卖了 <b>90.9 万台</b>、同比 +85.5%，但真正把「连上家」做成产品能力的只有三家，而且几乎都停在<b>「用嘴开关灯」</b>。这份调研拆开六家厂商的真实联动路径、能力层级与边界，最后回答一个问题：<b>三星的眼镜在这条赛道上，不该打什么、该打什么。</b></p>
+  <div class="chips">
+    <div class="chip">样本 <b>6 家眼镜厂商</b></div>
+    <div class="chip">生态 <b>米家 / 鸿蒙智家 / 天猫精灵 / SmartThings</b></div>
+    <div class="chip">数据截至 <b>2026-10</b></div>
+    <div class="chip">结论 <b>4 条判断 + 1 个 POC</b></div>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="sec-head"><span class="sec-no">00</span><h2>目录</h2></div>
+  <div class="toc">
+    <a href="#s01"><b>01</b>结论先行</a>
+    <a href="#s02"><b>02</b>市场基线</a>
+    <a href="#s03"><b>03</b>四座「家」的底座</a>
+    <a href="#s04"><b>04</b>六家厂商拆解</a>
+    <a href="#s05"><b>05</b>联动能力四层模型</a>
+    <a href="#s06"><b>06</b>四条技术路径</a>
+    <a href="#s07"><b>07</b>真实瓶颈</a>
+    <a href="#s08"><b>08</b>横向对比矩阵</a>
+    <a href="#s09"><b>09</b>对三星的启示</a>
+    <a href="#s10"><b>10</b>POC 建议</a>
+    <a href="#s11"><b>11</b>事实与存疑清单</a>
+  </div>
+</section>
+
+<section id="s01">
+  <div class="sec-head"><span class="sec-no">01</span><h2>结论先行</h2></div>
+  <div class="judge">
+    <div class="jd"><div class="n">判断 01</div><h3>联动是赠品，不是卖点</h3><p>厂商发布会的主叙事是拍摄、翻译、支付、提词；家居控制只在参数表末尾出现。用户真正为它买单的理由里，「控家电」排不进前三。</p></div>
+    <div class="jd"><div class="n">判断 02</div><h3>只有三家做成了产品</h3><p>小米、华为、千问把联动做进了系统；雷鸟靠社区插件、Rokid 靠 SDK 让开发者自己写；INMO、魅族、海信没有可验证的家居联动。</p></div>
+    <div class="jd"><div class="n">判断 03</div><h3>全部停在 L1</h3><p>三家都只做到「语音遥控」——和音箱、手机助手是同一件事，只是麦克风长在脸上。真正的「看见设备再动作」只有千问做了两个点。</p></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <p class="story"><b>第四个判断，也是这份调研最想说的：</b>三星不该在中国打「控制」，该打「看懂」。原因很硬——小米 AIoT 已连接 <b>11.61 亿台</b>设备、米家月活 1.24 亿；华为鸿蒙智家连接 <b>1.82 亿台</b>；天猫精灵覆盖 <b>4000 万家庭</b>。三星手机在中国没有存量优势，SmartThings 的中国区可用性连第三方评测都写着「需要确认」。在这种局面下做「用眼镜开关灯」，是用自己的短板去打别人的城墙。</p>
+    <p class="alt">但有一件事三家都没做：<b>看见一台不认识的家电，认出型号，给出操作或报修路径</b>。这条路不依赖账号体系、不挑品牌、不需要网关，恰好是摄像头 + 多模态模型最擅长的事。这也是第 10 节 POC 的由来。</p>
+    <div class="callout info"><b>一句话：</b>国内厂商把眼镜做成了「随身语音入口」，三星的机会是把它做成「随身视觉入口」——不是替代小爱/小艺，而是站在它们管不到的地方。</div>
+  </div>
+</section>
+
+<section id="s02">
+  <div class="sec-head"><span class="sec-no">02</span><h2>市场基线</h2><span class="sub">先把数字的口径分清楚，否则评审现场会被问住</span></div>
+  <div class="metrics">
+    <div class="mc"><div class="mi">2026E 中国出货</div><div class="val">450.8 万台</div><p>IDC 口径，同比 +77.7%</p></div>
+    <div class="mc"><div class="mi">2026H1 中国零售</div><div class="val">90.9 万台</div><p>洛图口径，同比 +85.5%</p></div>
+    <div class="mc"><div class="mi">2026-08 在售品牌</div><div class="val">536 个</div><p>奥维云网，赛道极度分散</p></div>
+    <div class="mc"><div class="mi">国补</div><div class="val">15% / 500 元</div><p>2026 年首次纳入该品类</p></div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <table>
+      <tr><th style="width:34%">指标</th><th style="width:24%">数值</th><th style="width:22%">口径</th><th>来源</th></tr>
+      <tr><td><b>2026H1 中国智能眼镜</b></td><td>90.9 万台，销额 18.8 亿元</td><td>线上全渠道零售</td><td>洛图科技（RUNTO）</td></tr>
+      <tr><td><b>2026 全年预测</b></td><td>250 万台，同比 +71.9%</td><td>全渠道零售量</td><td>洛图科技</td></tr>
+      <tr><td><b>2026 中国出货</b></td><td>450.8 万台，同比 +77.7%</td><td>出货量（sell-in）</td><td>IDC</td></tr>
+      <tr><td><b>2026 中国出货（另一版）</b></td><td>491.5 万台；全球 2368.7 万台</td><td>出货量，发布时点不同</td><td>IDC 另一份预测</td></tr>
+      <tr><td><b>2025 中国出货</b></td><td>253.6 万台，同比 +92.9%</td><td>出货量，已下修</td><td>IDC</td></tr>
+    </table>
+    <div class="callout"><b>别混用：</b>洛图是「零售量」、IDC 是「出货量」，两者天然差一截；IDC 自己两版预测也差 40 万台。评审引用时锁定一套，并注明来源与时间。</div>
+  </div>
+
+  <div class="card">
+    <h3 class="bt">品牌份额：两套口径，排名一致、数字不同</h3>
+    <table class="matrix">
+      <tr><th>排名</th><th>洛图 · 2026H1 线上销量</th><th>奥维云网 · 2026-08 在售</th><th>关键差异</th></tr>
+      <tr><td>1</td><td>雷鸟 <b>18.9%</b>（AR 品类 28.5%）</td><td>雷鸟 <b>16.3%</b></td><td>自建光学工厂，全链路自控</td></tr>
+      <tr><td>2</td><td>Rokid <b>16.7%</b></td><td>ROKID <b>14.8%</b></td><td>销额份额高于销量，溢价强</td></tr>
+      <tr><td>3</td><td>千问 <b>8.6%</b>（拍摄眼镜 23.3%）</td><td>千问 <b>12.4%</b></td><td>阿里生态 + 天猫首发</td></tr>
+      <tr><td>4</td><td>华为 <b>8.2%</b>（音频眼镜 23.7%）</td><td>华为 <b>8.0%</b></td><td>鸿蒙跨端，线下渠道强</td></tr>
+      <tr><td>5</td><td>小米（未披露具体值）</td><td>小米 <b>4.7%</b></td><td>重心从音频转向拍摄</td></tr>
+    </table>
+    <p class="src">份额差异来自统计窗口与口径（线上零售 vs 在售监测）。两家都指向同一个结论：前四名合计约 53%–56%，且 Q2 比 Q1 更分散——没有谁坐稳。</p>
+  </div>
+</section>
+
+<section id="s03">
+  <div class="sec-head"><span class="sec-no">03</span><h2>四座「家」的底座</h2><span class="sub">眼镜能控多少设备，取决于它接进哪座城</span></div>
+  <div class="card">
+    <table>
+      <tr><th style="width:15%">平台</th><th style="width:30%">规模（公开数据）</th><th style="width:25%">协议 / 架构</th><th>眼镜的接入方式</th></tr>
+      <tr>
+        <td><b>小米米家</b></td>
+        <td>AIoT 连接 <b>11.61 亿台</b>（2026-06，+17.4%）；米家 MAU <b>1.24 亿</b>；小爱 MAU <b>1.75 亿</b>；261 品类 / 6000+ 型号 / 5.27 亿激活 / 9000+ 企业</td>
+        <td>Zigbee + 蓝牙 Mesh 为主；澎湃智联统一接入；官方提供 Home Assistant 集成</td>
+        <td>账号内闭环：眼镜 → 手机小爱 → 米家云 → 设备；需同一小米账号</td>
+      </tr>
+      <tr>
+        <td><b>华为鸿蒙智家</b></td>
+        <td>HarmonyOS 5/6 在线终端 <b>4700 万台</b>（2026-03）；鸿蒙智家连接设备 <b>1.82 亿台</b>；3200+ 品牌 / 400+ 品类</td>
+        <td>1+3+N：智能主机 + PLC 有线 + 无线；本地可控，X2 Pro 最多 2500 设备</td>
+        <td>账号内闭环：眼镜 → 鸿蒙手机小艺 → 鸿蒙智家；需 HarmonyOS 6.0+ 手机</td>
+      </tr>
+      <tr>
+        <td><b>天猫精灵全屋智能</b></td>
+        <td>服务 <b>4000 万家庭</b>；月交互 <b>110 亿+</b></td>
+        <td>精灵智联 3.0：PLC + Mesh + Wi-Fi + 蓝牙四网融合；1.0（2024-09）→ 2.0（2025-03）→ 3.0（2025-09）</td>
+        <td>云云对接：眼镜云端 ↔ 全屋智能云；App 授权，<b>无需网关、不改布线</b></td>
+      </tr>
+      <tr>
+        <td><b>三星 SmartThings</b></td>
+        <td>全球 Matter 生态第一梯队；首家支持 Matter 1.5 摄像头（与 Aqara / Eve / Ulticam 合作，2026-03 上市）</td>
+        <td>Zigbee / Z-Wave / Thread / Matter / Wi-Fi 全覆盖；Matter 1.6 支持 NFC 配网、Joint Fabric</td>
+        <td>中国区可用性与设备兼容清单<b>待确认</b>；可通过涂鸦 Super Bridge 桥接非 Matter 设备</td>
+      </tr>
+    </table>
+    <p class="src">另有两股「家」的力量不在眼镜生态里，但决定了场景上限：海尔（1 亿+ 互联设备、6600+ 生态资源、AI 之眼 2.0、AgentOS / 小优）与美的（2026-03 全屋智能战略：一张家电网络、一个聪明大脑、一个开放平台，家庭智能体「小美」）。它们目前没有眼镜入口，但家电侧已经能主动服务——这是眼镜厂商最可能的合作方，也是最可能的对手。</p>
+  </div>
+  <div class="card">
+    <h3 class="bt">标准层：Matter 与中国版「OneConnect」同时在推进</h3>
+    <div class="grid2">
+      <div class="note"><div class="nt">Matter 1.6</div><p>NFC「触碰即配」、Joint Fabric 多控制端共管、温控器建议功能、设备可上报自身能力极限、传感器支持历史状态时间点。它解决「能不能连」，不解决「好不好用」。</p></div>
+      <div class="note"><div class="nt">《智家统一互联标准》</div><p>2026-03 由 GIIC 联合中国家用电器研究院及海尔、美的、华为等七巨头发布，定义发现、配网、接入认证与控制接口。刚起步，别指望它现在就能让眼镜跨品牌。</p></div>
+    </div>
+    <div class="callout"><b>一个被忽略的事实：</b>Matter 只统一底层通信。灯的开关、调光、色温能跨生态，但「呼吸灯」「音乐律动」这类高级能力仍要回原厂 App。这意味着眼镜即使接上 Matter，也只拿到设备能力的「公共子集」。</div>
+  </div>
+</section>
+
+<section id="s04">
+  <div class="sec-head"><span class="sec-no">04</span><h2>六家厂商拆解</h2><span class="sub">看它怎么连、连到什么程度、哪里连不上</span></div>
+
+  <div class="card">
+    <div class="vendor"><h3>小米 AI 眼镜</h3><span class="tag a">官方联动 · L1</span></div>
+    <table>
+      <tr><th style="width:18%">产品</th><td>2025-06 发布；40g；8.6 小时；1200 万像素 / 2K 视频；五麦阵列 + 骨传导；高通 AR1 + 索尼传感器；国补价 <b>1699 元</b></td></tr>
+      <tr><th>联动对象</th><td>米家已接入设备（官方口径：小爱可语音遥控 <b>3000+ 款</b>智能家电）；小米汽车 SU7 / YU7；手机系统设置</td></tr>
+      <tr><th>联动方式</th><td>眼镜 → 手机小爱 → 米家云。需登录同一小米账号；与音箱 / 电视同处一室时，语音唤醒<b>优先走音箱或电视</b>，要用眼镜需单指长按或轻声唤醒</td></tr>
+      <tr><th>能做到</th><td>「打开空调制冷模式调到 22 度」「打开观影模式」「我要睡了，关闭全部灯」；不在家也能远程控；支付宝「看一下」扫码支付内测（2026-08-29）；车机右滚轮自定义拍照</td></tr>
+      <tr><th>做不到</th><td>控不了非米家的第三方品牌设备（除非该品牌已接入米家/澎湃智联）；不知道自己站在哪个房间；没有「看见设备就控制」的视觉链路</td></tr>
+    </table>
+    <p class="src">定位判断来自洛图科技对 2026H1 的总结：小米「深度绑定米家生态，依托超级小爱实现跨终端 IoT 联动，将 AI 眼镜定位为家庭控制中心」。官方页面与用户实测（43 台米家设备）都验证了这条链路可用。</p>
+  </div>
+
+  <div class="card">
+    <div class="vendor"><h3>华为 AI 眼镜</h3><span class="tag a">官方联动 · L1</span></div>
+    <table>
+      <tr><th style="width:18%">产品</th><td>2026-04-20 发布、04-25 开售；钛丝半框 / 经典全框 <b>2499 元</b>、太阳镜 <b>2899 元</b>；5.5g（不带衬片）/ 40.5g（带衬片）；12 小时综合续航；自研 AI 眼镜芯片</td></tr>
+      <tr><th>联动对象</th><td>鸿蒙智家设备：照明、遮阳、冷暖新风、影音娱乐、家电、家具家私、全屋系统；华为手表；运动健康 App</td></tr>
+      <tr><th>联动方式</th><td>眼镜 → 鸿蒙手机小艺 → 鸿蒙智家。需 HarmonyOS 6.0 及以上、Mate / Pura / nova 等机型；锁屏使用需在「设置 &gt; 小艺 &gt; 唤醒与对话 &gt; 锁屏语音技能」中开启</td></tr>
+      <tr><th>能做到</th><td>「打开客厅的灯」「打开窗帘 / 关闭窗帘」；小艺看世界覆盖 5000+ 景点；手势指向识别准确率 90%；14 种语言互译；「拾光旅记」联动运动健康叠加心率 / 海拔 / 速度</td></tr>
+      <tr><th>做不到</th><td>鸿蒙体系外的设备基本控不了（对 Matter 设备另有 HarmonyOS Connect 认证要求）；强绑定华为手机；无屏，控制结果只能靠语音确认</td></tr>
+    </table>
+    <p class="src">华为官网「小艺语音技能」页面明确列出「语音控制智能家居」，并给出「打开客厅的灯」示例——这是六家里证据最硬的一条。家侧能力更强：小艺管家 6.0 支持声纹识人、3D 方位控灯（「说哪亮哪」），但这是家庭主机 + 传感器的能力，不经过眼镜。</p>
+  </div>
+
+  <div class="card">
+    <div class="vendor"><h3>千问 AI 眼镜（全屋版）</h3><span class="tag b">官方联动 · L1 向 L2 探</span></div>
+    <table>
+      <tr><th style="width:18%">产品</th><td>2026H1 线上份额 8.6%，拍摄眼镜细分 23.3% 第一；阿里生态打通淘宝、高德、支付宝、夸克网盘；五麦阵列含骨传导，「你好千问」唤醒</td></tr>
+      <tr><th>联动对象</th><td>天猫精灵全屋智能体系内已接入的智能家电；场景可跨到儿童房设备、屏屏对讲、日历提醒</td></tr>
+      <tr><th>联动方式</th><td><b>云云对接</b>：眼镜通过云端与全屋智能系统对接，用户在 App 授权家庭权限即可，<b>无需额外加装网关、不改原有布线</b></td></tr>
+      <tr><th>能做到</th><td>把眼镜做成继中控屏、面板、传感器之后的<b>第四类交互入口</b>；不在家也能「提前开回家模式」「确认门窗状态」；「叫宝宝起床」同时触发儿童房设备 + 屏屏对讲 + 日历提醒</td></tr>
+      <tr><th>视觉延伸</th><td>厂商口径：扫描冰箱内食材推荐菜谱；记不清物品位置时借眼镜回溯线索；日用品耗尽语音复购；孩子作业错题现场讲解</td></tr>
+      <tr><th>做不到</th><td>仍是体系内设备；强依赖云端与家庭授权；视觉能力目前是<b>单点场景</b>，没有形成「任意设备 → 识别 → 操作」的通用链路</td></tr>
+    </table>
+    <p class="src">2026-07-08 建博会首次公开「人·家·生活」框架，随后全屋版功能上线。这是六家里唯一把「眼镜 = 随身入口」写成战略叙事的厂商，也是唯一公开描述 L2 视觉家居场景的厂商。注意：视觉部分来自厂商宣传材料，未见独立实测。</p>
+  </div>
+
+  <div class="card">
+    <div class="vendor"><h3>雷鸟创新</h3><span class="tag c">无官方联动 · 社区补位</span></div>
+    <table>
+      <tr><th style="width:18%">产品</th><td>2026H1 线上份额第一（18.9%，AR 品类 28.5%）；雷鸟 iO：34g（前框 17g）、双目显示、提词 / 翻译，2499 元（国补后 1996 元起），2026-08-21 发布</td></tr>
+      <tr><th>联动对象</th><td>官方：无家居联动。社区：个人二开插件支持「米家控制」</td></tr>
+      <tr><th>联动方式</th><td>开发者插件（非官方能力、无 SLA、随版本可能失效）；RayNeo AI App 已上架鸿蒙原生版，但上架的是录音 / 通知 / 提词 / 实时字幕 / AI 问答等功能，不是家居控制</td></tr>
+      <tr><th>能做到</th><td>证明「开放 SDK 能长出场景」——社区插件还带导航、巡航、电子书、番茄钟、天气、热搜、自有知识库</td></tr>
+      <tr><th>做不到</th><td>普通用户买不到「官方支持的家居控制」；没有账号级授权、没有设备语义、没有跨品牌</td></tr>
+    </table>
+    <p class="src">这条最值得注意：它说明家居联动不是「技术做不到」，而是「厂商没把它当主线」。雷鸟把资源压在光学全链路自控与轻量化上，软件是补课项——鸿蒙原生 App 上架被媒体形容为「软件补课才走一半」。</p>
+  </div>
+
+  <div class="card">
+    <div class="vendor"><h3>Rokid 乐奇</h3><span class="tag c">无官方联动 · SDK 自建</span></div>
+    <table>
+      <tr><th style="width:18%">产品</th><td>2026H1 线上份额 16.7%；Rokid Glasses 主打实时翻译、AI 问答、AR 导航；YodaOS-Sprite（2026-06 发布）；支持千问、豆包、Gemini、ChatGPT、DeepSeek 多模型切换</td></tr>
+      <tr><th>联动对象</th><td>官方：无家居联动。开发者：可通过 CXR-L / CXR-S / 裸机开发访问图像、音频、显示、指令通道，自建任意家居 App</td></tr>
+      <tr><th>联动方式</th><td>SDK + AIUI Studio（在线 IDE、免真机调试、一键发布）；3 万+ 开发者、5000+ 合作项目；已打通支付宝与微信支付</td></tr>
+      <tr><th>能做到</th><td>「把眼镜当一个 Android 设备来写」——理论上任何有开放 API 的家居平台都能接</td></tr>
+      <tr><th>做不到</th><td>能力在开发者手里，不在产品里；没有官方家居入口；项目制成活，C 端用户无感</td></tr>
+    </table>
+    <p class="src">Rokid 的路线是「做平台不做场景」：把 IO 与系统能力开放，让生态自己长。好处是想象力大，坏处是家居这种需要授权、设备语义、长期维护的场景，开发者很难独立扛。</p>
+  </div>
+
+  <div class="card">
+    <div class="vendor"><h3>其他：INMO / 魅族 StarV / 海信 Vidda</h3><span class="tag c">无可验证联动</span></div>
+    <div class="grid2">
+      <div class="note"><div class="nt">INMO 影目</div><p>自研空间 AIOS，X 系列含运动、儿童家庭等产品线；内容生态合作方为腾讯应用宝、高德、芒果传媒、智谱、蚂蚁等。<b>未发现家居联动能力或计划。</b></p></div>
+      <div class="note"><div class="nt">魅族 StarV</div><p>MYVU 翻译眼镜（约 1104–1299 元）、StarV Snap 拍摄眼镜、StarV View AR；接入通义千问，主打翻译 / 提词 / 导航。<b>未发现家居联动。</b></p></div>
+      <div class="note" style="grid-column:1/-1"><div class="nt">海信 Vidda G11</div><p>2025-10 发布，27g 音频眼镜，主打轻量化与全天候佩戴。海信本身是家电巨头，理论上具备「眼镜 × 电视 / 家电」的想象空间，但<b>目前没有可验证的联动产品或接口</b>，不建议写进方案。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="s05">
+  <div class="sec-head"><span class="sec-no">05</span><h2>联动能力四层模型</h2><span class="sub">用同一把尺子量所有厂商，避免被发布会话术带走</span></div>
+  <div class="card">
+    <div class="ladder">
+      <div class="lv"><div class="tag">L0</div><div class="nm">无联动<small>眼镜是独立设备，和能力中心不发生关系</small></div><div class="who">INMO / 魅族 / 海信</div></div>
+      <div class="lv"><div class="tag">L1</div><div class="nm">语音遥控<small>说指令 → 助手 → 云端 → 设备；本质是「把音箱搬到脸上」</small></div><div class="who">小米 / 华为 / 千问</div></div>
+      <div class="lv"><div class="tag">L2</div><div class="nm">视觉理解<small>看见设备 / 食材 / 物品，结合画面给服务，而不只是执行指令</small></div><div class="who">千问（单点：冰箱、找物）</div></div>
+      <div class="lv"><div class="tag">L3</div><div class="nm">空间与主动<small>知道人在哪、设备在哪、状态如何，无需开口即触发</small></div><div class="who">眼镜侧：无人做到</div></div>
+    </div>
+    <div class="callout"><b>关键错位：</b>「家」这一侧已经跑到 L2 / L3——华为 AI 超感传感器做到人来灯亮、风避人吹、跌倒识别；海尔 AI 之眼 2.0 与 AgentOS 能主动做健康看护、烹饪引导、能源优化；美的「小美」做家庭智能体。但<b>这些能力都不经过眼镜</b>。眼镜侧仍停在 L1，中间缺的正是「人的位置与意图」这根线。</div>
+    <p class="alt">这也是为什么「眼镜 + 家居」的故事听起来很美、用起来很平：家已经会自己思考了，眼镜只是又多了一个遥控器。</p>
+  </div>
+</section>
+
+<section id="s06">
+  <div class="sec-head"><span class="sec-no">06</span><h2>四条技术路径</h2><span class="sub">同样是「能控灯」，底下是四套完全不同的工程</span></div>
+  <div class="card">
+    <table>
+      <tr><th style="width:17%">路径</th><th style="width:13%">代表</th><th style="width:32%">链路</th><th style="width:19%">优点</th><th>代价</th></tr>
+      <tr>
+        <td><b>账号内闭环</b></td><td>小米 / 华为</td>
+        <td>眼镜 → 手机助手 → 厂商云 → 设备；同一账号、同一品牌手机</td>
+        <td>延迟最低、权限清晰、离线场景可兜底（华为 PLC 本地可控）</td>
+        <td>生态封闭；换手机品牌即失效；第三方设备进不来</td>
+      </tr>
+      <tr>
+        <td><b>云云对接</b></td><td>千问</td>
+        <td>眼镜云 → 全屋智能云 → 设备；App 授权家庭权限</td>
+        <td>接入快、无需网关、不改布线、不挑手机品牌</td>
+        <td>依赖云与授权；断网不可用；跨云排障困难</td>
+      </tr>
+      <tr>
+        <td><b>SDK 自建</b></td><td>Rokid / 雷鸟（社区）</td>
+        <td>开发者写 App → 调眼镜 IO → 调家居开放 API</td>
+        <td>最灵活；可做深度定制与 B 端项目</td>
+        <td>无官方 SLA；授权、语义、维护全得自己扛；C 端不可预期</td>
+      </tr>
+      <tr>
+        <td><b>Matter / 桥接</b></td><td>涂鸦 Super Bridge → SmartThings / Apple / Alexa</td>
+        <td>非 Matter 设备（Wi-Fi / Zigbee / BLE / PLC）→ 桥 → Matter 生态</td>
+        <td>跨品牌、跨协议；一次桥接多生态可用</td>
+        <td>只覆盖基础能力；高级功能回原厂 App；<b>目前没有眼镜厂商用它</b></td>
+      </tr>
+      <tr>
+        <td><b>端侧直连</b></td><td>无产品化案例</td>
+        <td>眼镜 BLE / Thread 直连设备，不经云</td>
+        <td>低延迟、隐私最好、断网可用</td>
+        <td>配网难、协议栈重、眼镜功耗与天线空间不够</td>
+      </tr>
+    </table>
+    <div class="callout info"><b>第四条是被低估的路。</b>涂鸦的 Super Bridge 已能把非 Matter 设备一键桥到苹果、三星、亚马逊。如果三星要做「在中国也能控家电」的眼镜，这是唯一不依赖米家 / 鸿蒙 / 天猫精灵开放后台的技术路径——代价是只拿到 Matter 的公共能力子集。</div>
+  </div>
+</section>
+
+<section id="s07">
+  <div class="sec-head"><span class="sec-no">07</span><h2>真实瓶颈</h2><span class="sub">七个卡点，前三个是产品问题，后四个是工程问题</span></div>
+  <div class="card">
+    <table>
+      <tr><th style="width:19%">瓶颈</th><th style="width:30%">表现</th><th style="width:29%">根因</th><th>谁在解</th></tr>
+      <tr><td><b>设备语义</b></td><td>「打开客厅的灯」在自家可用，换品牌就失灵</td><td>助手依赖用户自定义的设备名与房间名；跨品牌命名不统一</td><td>各家在自己的生态内做；跨品牌无人做</td></tr>
+      <tr><td><b>空间定位</b></td><td>眼镜不知道人在哪个房间，也不知道设备在哪</td><td>室内定位精度与功耗矛盾；眼镜 IMU 漂移大，视觉定位耗电</td><td>华为用家庭主机 + 3D 方位控灯，绕开眼镜</td></tr>
+      <tr><td><b>无屏反馈</b></td><td>说完不知道成没成；误开空调、误关灯</td><td>音频形态没有视觉确认；语音播报有延迟且打断对话</td><td>靠音效 / 播报；没有厂商做出可靠的状态确认范式</td></tr>
+      <tr><td><b>账号与权限</b></td><td>家人、访客、保姆用什么权限？</td><td>家庭多成员模型复杂；授权粒度粗</td><td>千问用 App 授权家庭权限；其余沿用手机账号</td></tr>
+      <tr><td><b>云依赖</b></td><td>断网即失效；跨云延迟不可控</td><td>云云对接的两跳链路；家居云与眼镜云不同厂商</td><td>华为用 PLC 本地可控；眼镜侧无解</td></tr>
+      <tr><td><b>标准割裂</b></td><td>Matter 能连但只能基础控制；高级功能回原厂 App</td><td>Matter 统一通信不统一体验；中国 OneConnect 刚起步</td><td>涂鸦 / 绿米 / 三星在推 Matter；家电巨头在推 OneConnect</td></tr>
+      <tr><td><b>隐私</b></td><td>摄像头进入家庭空间，拍到家人、访客、孩子</td><td>眼镜拍摄提示弱；云端留存策略不透明</td><td>行业尚无眼镜摄像头专属数据规范</td></tr>
+    </table>
+    <p class="src">前三条解释了「为什么联动听起来很酷、用户却不用」；后四条解释了「为什么厂商做得很慢」。评审时如果只讲前者，会被当成体验问题；讲清后者，才是工程判断。</p>
+  </div>
+</section>
+
+<section id="s08">
+  <div class="sec-head"><span class="sec-no">08</span><h2>横向对比矩阵</h2><span class="sub">一张表看完六家的真实位置</span></div>
+  <div class="card">
+    <table class="matrix">
+      <tr><th style="width:15%">厂商</th><th>官方家居联动</th><th>跨品牌</th><th>视觉理解</th><th>空间感知</th><th>开放 SDK</th><th>生态规模</th></tr>
+      <tr><td>小米</td><td><span class="ok">有 · 米家</span></td><td><span class="no">否</span></td><td><span class="no">无家居场景</span></td><td><span class="no">否</span></td><td><span class="wip">有限</span></td><td><span class="ok">11.61 亿设备</span></td></tr>
+      <tr><td>华为</td><td><span class="ok">有 · 鸿蒙智家</span></td><td><span class="no">否</span></td><td><span class="no">无家居场景</span></td><td><span class="wip">家侧有，眼镜无</span></td><td><span class="no">否</span></td><td><span class="ok">1.82 亿设备</span></td></tr>
+      <tr><td>千问</td><td><span class="ok">有 · 天猫精灵</span></td><td><span class="no">否（体系内）</span></td><td><span class="wip">单点（冰箱/找物）</span></td><td><span class="no">否</span></td><td><span class="no">否</span></td><td><span class="ok">4000 万家庭</span></td></tr>
+      <tr><td>雷鸟</td><td><span class="wip">仅社区插件</span></td><td><span class="no">否</span></td><td><span class="no">否</span></td><td><span class="no">否</span></td><td><span class="ok">较开放</span></td><td><span class="wip">18.9% 份额</span></td></tr>
+      <tr><td>Rokid</td><td><span class="no">无</span></td><td><span class="wip">取决于开发者</span></td><td><span class="no">否</span></td><td><span class="no">否</span></td><td><span class="ok">CXR-L / CXR-S / 裸机</span></td><td><span class="wip">16.7% 份额</span></td></tr>
+      <tr><td>INMO / 魅族 / 海信</td><td><span class="no">无</span></td><td><span class="no">否</span></td><td><span class="no">否</span></td><td><span class="no">否</span></td><td><span class="wip">部分</span></td><td><span class="wip">长尾</span></td></tr>
+    </table>
+    <div class="callout"><b>读表方法：</b>「官方家居联动」一列只有三个绿点，说明这是一个「三家做完、其余放弃」的市场；「跨品牌」全红，说明所有人都被锁在自己的城池里；「视觉理解」只有千问一个半绿，说明这是唯一还有空位的格子。</div>
+  </div>
+  <div class="card">
+    <h3 class="bt">场景覆盖：谁能做什么</h3>
+    <table>
+      <tr><th style="width:15%">厂商</th><th>灯光 / 空调 / 窗帘</th><th>门锁 / 摄像头</th><th>家电（冰箱 / 洗衣机）</th><th>食材 / 找物</th><th>跨设备场景</th></tr>
+      <tr><td>小米</td><td>可（米家）</td><td>可（米家）</td><td>可（米家白电）</td><td>识别食物热量，不做家居联动</td><td>观影模式、回家 / 离家、车机</td></tr>
+      <tr><td>华为</td><td>可（鸿蒙智家）</td><td>可（安防子系统）</td><td>可（家电子系统）</td><td>卡路里识别，不做家居联动</td><td>眼镜—手机—手表—车机；拾光旅记</td></tr>
+      <tr><td>千问</td><td>可（天猫精灵）</td><td>可（体系内）</td><td>可（体系内）</td><td>扫冰箱食材 → 菜谱；找物；复购</td><td>叫宝宝起床：设备 + 对讲 + 日历</td></tr>
+      <tr><td>雷鸟 / Rokid</td><td>开发者自建</td><td>开发者自建</td><td>开发者自建</td><td>否</td><td>取决于单个项目</td></tr>
+    </table>
+    <p class="src">「可」指厂商官方声明或产品页面明确支持，未逐项实测。家电品类内部也有差异：同品牌不同型号的开放能力不同，方案落地前需按型号核对。</p>
+  </div>
+</section>
+
+<section id="s09">
+  <div class="sec-head"><span class="sec-no">09</span><h2>对三星的启示</h2><span class="sub">Galaxy Glasses + SmartThings 在中国该怎么站</span></div>
+  <div class="card">
+    <h3 class="bt">先把事实摆清</h3>
+    <div class="kv">
+      <div><span>形态</span><b>音频眼镜，无屏</b></div>
+      <div><span>影像</span><b>12MP IMX681，带自动对焦</b></div>
+      <div><span>重量 / 续航</span><b>约 50g / 155mAh·9h</b></div>
+      <div><span>价格</span><b>379–499 美元</b></div>
+      <div><span>平台</span><b>Android XR（Jetpack Projected）</b></div>
+      <div><span>上市</span><b>2026 秋季，分市场</b></div>
+      <div><span>SmartThings</span><b>Matter 1.5 摄像头首家</b></div>
+      <div><span>中国可用性</span><b>待确认（第三方评测原话）</b></div>
+    </div>
+    <div class="callout"><b>不要假设两件事：</b>① 用户会用三星手机（中国市场份额低）；② SmartThings 在中国能直接控到主流家电（设备兼容清单未确认）。这两条任一不成立，「眼镜控家电」的链路就断了。</div>
+  </div>
+
+  <div class="card">
+    <h3 class="bt">三条判断</h3>
+    <div class="steps">
+      <div class="step"><div class="st">不要打「控制」</div><div class="sd">小米 11.61 亿设备、华为 1.82 亿、天猫精灵 4000 万家庭，且全部免费。三星拿不到米家 / 鸿蒙 / 天猫精灵的深度授权，做出来的控制只覆盖少数 Matter 设备，体验必然更差。更致命的是：Galaxy Glasses 没有屏幕，控制结果只能靠语音确认——这恰恰是 L1 体验最弱的一环。</div></div>
+      <div class="step"><div class="st">要打「看懂」</div><div class="sd">摄像头 + 多模态度模型是三星的真实优势（12MP 自动对焦，对近距离铭牌 / 故障码比定焦方案更有用）。而「看一台不认识的家电 → 认型号 → 给操作或报修」这条路<b>不依赖任何生态授权</b>，也不挑用户用什么手机。它是三家大厂都没做的格子。</div></div>
+      <div class="step"><div class="st">用「合作」代替「对抗」</div><div class="sd">家电侧的主动智能已经很强（海尔 AI 之眼 2.0、美的小美、华为 AI 超感），缺的是「人在现场的第一视角」。三星可以把自己定位成这些家的<b>视觉外设</b>，而不是另一个控制中心。对国内家电厂商来说，这是增量；对三星来说，这是唯一能绕开生态封锁的入口。</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="bt">三个可打方向</h3>
+    <table>
+      <tr><th style="width:18%">方向</th><th style="width:27%">做什么</th><th style="width:27%">为什么是三星</th><th>风险</th></tr>
+      <tr>
+        <td><b>A · 家电「看一眼」</b><br><span class="ok">建议 POC</span></td>
+        <td>扫铭牌 / 故障码 / 面板 → 识别品牌型号 → 给操作步骤或报修入口；不认识就要求重拍，不硬猜</td>
+        <td>不依赖账号与生态；12MP 自动对焦；Gemini 视觉 + 本地 OCR + 知识库 RAG 全是现成能力</td>
+        <td>型号库冷启动；跨品牌资料版权；识别错了要能兜底</td>
+      </tr>
+      <tr>
+        <td><b>B · 家的巡检</b></td>
+        <td>第一视角走一圈，识别漏水、插座过载、燃气、宠物异常，生成巡检报告</td>
+        <td>家侧 AI 强在「传感器覆盖处」，弱在「人眼能看到但传感器没装的地方」</td>
+        <td>责任边界（报错了算谁的）；隐私（拍到家人）</td>
+      </tr>
+      <tr>
+        <td><b>C · Matter 的人侧入口</b></td>
+        <td>涂鸦 Super Bridge 把国内设备桥到 SmartThings，眼镜做语音 + 视觉入口</td>
+        <td>唯一不依赖米家 / 鸿蒙 / 天猫精灵后台的跨品牌路径</td>
+        <td>只拿到 Matter 公共能力；SmartThings 中国可用性未定；数据出境</td>
+      </tr>
+    </table>
+    <p class="src">A 是「能力已就绪、风险最低」；B 是「差异化最强、责任最重」；C 是「战略正确、落地最慢」。如果只有四周，做 A。</p>
+  </div>
+</section>
+
+<section id="s10">
+  <div class="sec-head"><span class="sec-no">10</span><h2>POC 建议：家电「看一眼」</h2><span class="sub">4 周、2.5 人月，不与任何生态为敌</span></div>
+  <div class="card">
+    <p class="story"><b>场景：</b>用户家里空调不制冷，面板显示一个不认识的代码。他戴上眼镜说「看看这个」——眼镜拍下面板，耳中回应：「这是格力的 E5，过滤网堵塞或室外机散热不良。先拆滤网冲洗，还不行我帮你报修。」他不知道型号也没关系，眼镜看铭牌就认出来了。<b>整个过程没有打开任何一个 App，没有登录任何账号。</b></p>
+    <div class="steps" style="margin-top:16px">
+      <div class="step"><div class="st">W1 · 型号与故障码识别</div><div class="sd">采集 200 台主流家电的铭牌 / 面板 / 故障码样本（自有 + 公开数据集）；用 <code>Gemini 3.5 Flash</code> 视觉 + 本地 OCR 双通道；建立「品牌—品类—型号—故障码」映射表。验收：Top-1 型号识别 ≥ 80%。</div></div>
+      <div class="step"><div class="st">W2 · 知识库与拒答</div><div class="sd">按「故障码」而非文档切 chunk；混合检索（BM25 + 向量）；每条答案强制带出处（手册页码 / 厂商公告）；检索不到就返回「这个型号我没查到，建议报修」，<b>禁止模型自造步骤</b>。</div></div>
+      <div class="step"><div class="st">W3 · 眼镜端链路</div><div class="sd">ProjectedContext 取佩戴态；语音触发抓帧；质量门（模糊 / 反光 / 主体占比）；置信度三档分流；无屏播报规范（一句一动作，≤15 字）；失败重拍最多 3 次后转人工。</div></div>
+      <div class="step"><div class="st">W4 · 10 人实测 + 评审演示</div><div class="sd">真实家庭环境、真实故障（或模拟故障）；记录识别准确率、一次解决率、平均耗时、用户是否愿意再用；同步准备 3 分钟现场演示脚本。</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 class="bt">验收指标</h3>
+    <div class="metrics">
+      <div class="mc"><div class="mi">型号识别 Top-1</div><div class="val">≥ 80%</div><p>主流品牌、正常光照</p></div>
+      <div class="mc"><div class="mi">一次解决率</div><div class="val">+15pp</div><p>相对「自己查手机」对照组</p></div>
+      <div class="mc"><div class="mi">端到端时延</div><div class="val">＜ 8s</div><p>抓帧 → 耳中第一句</p></div>
+      <div class="mc"><div class="mi">错误步骤率</div><div class="val">＜ 2%</div><p>高风险步骤必须为零</p></div>
+    </div>
+    <div class="callout good"><b>为什么这个 POC 容易过：</b>它不要求任何一家国内厂商开放后台，不要求用户换手机，不要求 SmartThings 在中国可用。技术栈全部是已发布能力，演示效果又足够直观——「看一眼，它就知道这是什么机器、该怎么修」。</div>
+  </div>
+</section>
+
+<section id="s11">
+  <div class="sec-head"><span class="sec-no">11</span><h2>事实与存疑清单</h2><span class="sub">哪些能写进评审材料，哪些只能当假设</span></div>
+  <div class="card">
+    <table>
+      <tr><th style="width:40%">结论</th><th style="width:30%">来源</th><th style="width:15%">时间</th><th>置信度</th></tr>
+      <tr><td>2026H1 中国智能眼镜 90.9 万台、+85.5%</td><td>洛图科技，经多家媒体转引</td><td>2026-08</td><td><span class="ok">高</span></td></tr>
+      <tr><td>2026 中国出货 450.8 万台 / 491.5 万台（两版）</td><td>IDC，不同发布时点</td><td>2026</td><td><span class="ok">高（但需注明版本）</span></td></tr>
+      <tr><td>品牌份额：雷鸟 18.9% / Rokid 16.7% / 千问 8.6% / 华为 8.2%</td><td>洛图 2026H1 线上</td><td>2026-08</td><td><span class="ok">高</span></td></tr>
+      <tr><td>小米 AIoT 11.61 亿台、米家 MAU 1.24 亿、小爱 MAU 1.75 亿</td><td>小米 2026 中期报告</td><td>2026-06-30</td><td><span class="ok">高</span></td></tr>
+      <tr><td>华为鸿蒙智家连接 1.82 亿台、HarmonyOS 5/6 在线 4700 万台</td><td>媒体报道 / 华为沟通会</td><td>2026-03</td><td><span class="wip">中高</span></td></tr>
+      <tr><td>天猫精灵 4000 万家庭、月交互 110 亿+；千问眼镜全屋版打通</td><td>阿里千问事业部公开演讲 / 新浪</td><td>2026-07 / 2026</td><td><span class="wip">中（厂商口径）</span></td></tr>
+      <tr><td>华为眼镜可语音控鸿蒙智家、需 HarmonyOS 6.0+</td><td>华为官网支持页</td><td>2026-04</td><td><span class="ok">高</span></td></tr>
+      <tr><td>小米眼镜可语音控米家、同空间唤醒优先音箱/电视</td><td>小米官网产品页</td><td>2026</td><td><span class="ok">高</span></td></tr>
+      <tr><td>雷鸟家居联动仅社区插件</td><td>什么值得买用户实测报道</td><td>2026-09</td><td><span class="wip">中（单一来源）</span></td></tr>
+      <tr><td>Rokid 无官方家居联动、SDK 可自建</td><td>Rokid 开放平台文档</td><td>2026</td><td><span class="ok">高</span></td></tr>
+      <tr><td>SmartThings 中国区可用性</td><td>第三方评测「需要确认」</td><td>2026-08</td><td><span class="no">低 · 必须实测</span></td></tr>
+      <tr><td>Galaxy Glasses 中国上市计划</td><td>未查到官方信息</td><td>—</td><td><span class="no">未知</span></td></tr>
+      <tr><td>千问全屋版实际覆盖设备范围 / 上线时间</td><td>厂商宣传，未见独立实测</td><td>2026</td><td><span class="wip">中低</span></td></tr>
+      <tr><td>海信 Vidda 与海信家电的联动</td><td>未查到任何产品或接口</td><td>—</td><td><span class="no">未知</span></td></tr>
+    </table>
+    <p class="src">本报告全部基于公开报道、厂商官网与开放平台文档，未做一手访谈或渠道调研。标注「厂商口径」的为宣传材料，未经独立验证；标注「未知 / 低」的不要写进对外材料，必要时先做小样本实测。</p>
+  </div>
+</section>
+
+<div class="card" style="margin-top:16px">
+  <p class="story"><b>最后留一句给评审：</b>这个赛道现在最不缺的是「又一副能拍照的眼镜」，最缺的是「戴上它之后，有一件事只有它能做」。控制家电不是那件事——音箱做得更好、手机做得更全。但<b>「看见一台机器，就知道它是什么、出了什么问题、下一步该干什么」</b>，是眼镜独有的位置：它是唯一一个「视角就在用户眼前」的设备。</p>
+</div>
+
+</div>
+
+<footer>
+  国内智能眼镜 × IoT / 智能家居联动调研 · 2026-10-22<br>
+  数据来源：IDC、洛图科技（RUNTO）、奥维云网、小米集团 2026 中期报告、华为官网与鸿蒙智家、阿里千问事业部公开演讲、Rokid 开放平台、Matter / CSA 中国成员组、公开媒体报道<br>
+  本报告为公开信息整理与结构化分析，不构成对任何厂商产品能力的最终认定
+</footer>
+</body>
+</html>
